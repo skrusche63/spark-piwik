@@ -11,5 +11,54 @@ Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from
 
 ### Integration based on MySQL
 
+The few lines of Scale code below show howto easily access Piwik data persisted in a MySQL database table:
+```
+object MySQLConnector {
+
+  private val MYSQL_DRIVER   = "com.mysql.jdbc.Driver"
+  private val NUM_PARTITIONS = 1
+   
+  def readTable(sc:SparkContext,url:String,database:String,user:String,password:String,idsite:Int,query:String,fields:List[String]):RDD[Map[String,Any]] = {
+    
+    val result = new JdbcRDD(sc,() => getConnection(url,database,user,password),
+      query,idsite,idsite,NUM_PARTITIONS,
+      (rs:ResultSet) => getRow(rs,fields)
+    ).cache()
+
+    result
+    
+  }
+  
+  /**
+   * Convert database row into Map[String,Any]
+   */
+  private def getRow(rs:ResultSet,fields:List[String]):Map[String,Any] = {
+    
+    val metadata = rs.getMetaData()
+    val numCols  = metadata.getColumnCount()
+    
+    val row = HashMap.empty[String,Any]
+    (1 to numCols).foreach(i => {
+      
+      val k = metadata.getColumnName(i)
+      val v = rs.getObject(i)
+      
+      if (fields.isEmpty) {
+        row += k -> v
+        
+      } else {        
+        if (fields.contains(k)) row += k -> v
+        
+      }
+      
+    })
+   
+    row.toMap
+    
+  }
+
+```
+
+
 ### Integration based on Spray and Apache Kafka
 
