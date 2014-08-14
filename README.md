@@ -13,7 +13,9 @@ Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from
 
 ![Apache Spark and Piwik Analytics](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/Apache-Spark-and-Piwik.png)
 
-### Integration based on MySQL
+### Historical Engagement Data
+
+> Integration is based on Piwik's MySQL database.
 
 The few lines of Scale code below show how to access customer engagement data persisted in Piwik's MySQL database. The connector requires the respective database location, name and user credentials. Customer engagement data 
 are retrieved by specifying the unique identifier `idsite` of a certain website supported by Piwik, and a specific query statement `query`.
@@ -180,6 +182,8 @@ The table describes the result of Top K Association Rules, where `k = 10`  and t
 
 TBD
 
-### Integration based on Spray and Apache Kafka
+### Real-Time Engagement Data
+
+> Integration is based on Spray, Apache Kafka and Piwik's tracking library (JavaScript).
 
 TBD
