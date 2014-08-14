@@ -44,6 +44,22 @@ products in large-scale customer engagement data recorded by ecommerce websites 
 For example, the rule [onions, potatoes] -> [burger] indicates that if a customer buys onions and potatoes together, he or she is likely to also buy 
 hamburger meat. Such information can be used as the basis for decisions about marketing activities such as, e.g., promotional pricing or product placements. 
 
+In this project, we load customer engagement data from the `piwik_log_conversion_item` table into Apache Spark and transforms these data into an 
+appropriate transaction format. To this end, all ecommerce items that refer to the same ecommerce order are aggregated into single line. 
+
+The output of this transformation has the following format:
+```
+idsite|idvisitor|idorder|timestamp|item item item ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|A10000124|1407986582000|2 5 6 8 
+1|b65ce95de5c8e7ea|A10000123|1407931845000|4 9
+1|b65ce95de5c8e7ea|A10000125|1407986689000|3 5 7
+...
+
+```
+
+
 TBD
 
 ### Integration based on Spray and Apache Kafka
