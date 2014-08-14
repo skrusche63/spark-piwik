@@ -103,7 +103,7 @@ def fromLogConversion(sc:SparkContext,idsite:Int,startdate:String,enddate:String
     
 }
 ```
-Discovering the top K association rules from the transactions above, does not require any reference to certain website (`idsite`), visitor(`idvisitor`) or order(`idorder`). It is sufficient to
+Discovering the Top K Association Rules from the transactions above, does not require any reference to certain website (`idsite`), visitor (`idvisitor`) or order (`idorder`). It is sufficient to
 specify all items of a transaction in a single line, and apply a unique line number (`lno`):
 
 ```
@@ -119,7 +119,7 @@ lno|item item item ...
 ...
 
 ```
-
+The table describes the result of Top K Association Rules, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`.
 
 | antecedent  | consequent | support | confidence |
 | ------------- | ------------- |------------- | ------------- |
