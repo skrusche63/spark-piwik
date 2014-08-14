@@ -54,7 +54,9 @@ hamburger meat. Such information can be used as the basis for decisions about ma
 
 In this project, we retrieve historical engagement data from the `piwik_log_conversion_item` table with Spark and transform these data into an appropriate transaction format. To this end, all ecommerce items that refer to the same ecommerce order are aggregated into single line.
 
-The output of this transformation has the following format:
+**Note**: The retrieved ecommerce items are filtered by those items that have not been deleted from a certain order. 
+
+The output of this transformation has the format specified here,
 ```
 idsite|idvisitor|idorder|timestamp|item item item ...
 -----------------------------------------------------
@@ -65,8 +67,7 @@ idsite|idvisitor|idorder|timestamp|item item item ...
 ...
 
 ```
-
-The transformation is done by the following lines of Scala code:
+and is done by the following lines of Scala code:
 ```
 def fromLogConversionItem(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
 
