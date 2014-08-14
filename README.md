@@ -45,7 +45,7 @@ For example, the rule [onions, potatoes] -> [burger] indicates that if a custome
 hamburger meat. Such information can be used as the basis for decisions about marketing activities such as, e.g., promotional pricing or product placements. 
 
 In this project, we load customer engagement data from the `piwik_log_conversion_item` table into Apache Spark and transforms these data into an 
-appropriate transaction format. To this end, all ecommerce items that refer to the same ecommerce order are aggregated into single line. 
+appropriate transaction format. To this end, all ecommerce items that refer to the same ecommerce order are aggregated into single line. This is done by the `TransactionBuilder` class.
 
 The output of this transformation has the following format:
 ```
