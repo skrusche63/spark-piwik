@@ -170,7 +170,7 @@ class RuleBuilder {
 } 
 ```
 
-The table describes the result of the Top K Association Rule Mining, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`. 
+The table describes the result of the Top K Association Rule Mining, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`. For example, the first row of table indicates that if a customers buys the ecommerce items with the `idaction_sku` value of `4` and `232` together, then there is a likelihood of `90%` that he or she also buys the item with the identifier `141`.
 
 | antecedent  | consequent | support | confidence |
 | ------------- | ------------- |------------- | ------------- |
