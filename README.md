@@ -2,6 +2,8 @@
 
 ## Integration of Piwik Analytics with Apache Spark 
 
+> Transform customer engagement data from Piwik Analytics into actionable business insights.
+
 In this project, we illustrate that Apache Spark not only is a fast and general engine for large-scale data processing, but also an appropriate means to integrate existing data source and make their data 
 applicable by sophisticated machine learning, mining and prediction algorithms. As a specific data source, we selected [Piwik Analytics](http://piwik.org/), which is a widely used open source platform for 
 web analytics, and, an appropriate starting point for market basket analysis, user behavior analytics and more.
