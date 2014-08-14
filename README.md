@@ -52,57 +52,86 @@ The output of this transformation has the following format:
 idsite|idvisitor|idorder|timestamp|item item item ...
 -----------------------------------------------------
 
-1|b65ce95de5c8e7ea|A10000124|1407986582000|2 5 6 8 
-1|b65ce95de5c8e7ea|A10000123|1407931845000|4 9
-1|b65ce95de5c8e7ea|A10000125|1407986689000|3 5 7
+1|b65ce95de5c8e7ea|A10000124|1407986582000|1 2 4 5 
+1|b65ce95de5c8e7ea|A10000123|1407931845000|2 3 5
+1|b65ce95de5c8e7ea|A10000125|1407986689000|1 2 4 5
 ...
 
 ```
 
 The transformation is done by the following lines of Scala code:
 ```
-  def fromLogConversion(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
+def fromLogConversion(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
 
-    val fields = LOG_FIELDS
+  val fields = LOG_FIELDS
+  /*
+   * Access to the log_conversion table is restricted to a time window,
+   * specified by a start and end date of format yyyy-mm-dd
+   */
+  val query = sql_logConversion.replace("$1",startdate).replace("$2",enddate)   
+  val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+  /*
+   * Restrict to conversion that refer to ecommerce orders (idgoal = 0)
+   */
+  rows.filter(row => isOrder(row)).map(row => {
+      
+    val idsite  = row("idsite").asInstanceOf[Long]
     /*
-     * Access to the log_conversion table is restricted to a time window,
-     * specified by a start and end date of format yyyy-mm-dd
+     * Convert 'idvisitor' into a HEX String representation
      */
-    val query = sql_logConversion.replace("$1",startdate).replace("$2",enddate)   
-    val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
-  
+    val idvisitor = row("idvisitor").asInstanceOf[Array[Byte]]     
+    val user = new java.math.BigInteger(1, idvisitor).toString(16)
     /*
-     * Restrict to conversion that refer to ecommerce orders (idgoal = 0)
+     * Convert server_time into universal timestamp
      */
-    rows.filter(row => isOrder(row)).map(row => {
+    val server_time = row("server_time").asInstanceOf[java.sql.Timestamp]
+    val timestamp = server_time.getTime()
       
-      val idsite  = row("idsite").asInstanceOf[Long]
-      /*
-       * Convert 'idvisitor' into a HEX String representation
-       */
-      val idvisitor = row("idvisitor").asInstanceOf[Array[Byte]]     
-      val user = new java.math.BigInteger(1, idvisitor).toString(16)
-      /*
-       * Convert server_time into universal timestamp
-       */
-      val server_time = row("server_time").asInstanceOf[java.sql.Timestamp]
-      val timestamp = server_time.getTime()
+    val idorder = row("idorder").asInstanceOf[String]      
+    val items = row("items").asInstanceOf[Int]
       
-      val idorder = row("idorder").asInstanceOf[String]      
-      val items = row("items").asInstanceOf[Int]
-      
-      /*
-       * For further analysis it is actually sufficient to
-       * focus on revenue_subtotal and revenue_discount
-       */
-      val revenue_subtotal = row("revenue_subtotal").asInstanceOf[Float]
-      val revenue_discount = row("revenue_discount").asInstanceOf[Float]
+    /*
+     * For further analysis it is actually sufficient to
+     * focus on revenue_subtotal and revenue_discount
+     */
+    val revenue_subtotal = row("revenue_subtotal").asInstanceOf[Float]
+    val revenue_discount = row("revenue_discount").asInstanceOf[Float]
 
-      "" + idsite + "|" + user + "|" + idorder + "|" + timestamp + "|" + revenue_subtotal + "|" + revenue_discount
+    "" + idsite + "|" + user + "|" + idorder + "|" + timestamp + "|" + revenue_subtotal + "|" + revenue_discount
       
-    })
+  })
     
-  }
+}
+```
+Discovering the top K association rules from the transactions above, does not require any reference to certain website (`idsite`), visitor(`idvisitor`) or order(`idorder`). It is sufficient to
+specify all items of a transaction in a single line, and apply a unique line number (`lno`):
+
+```
+lno|item item item ...
+----------------------
+
+0,1 2 4 5
+1,2 3 5
+2,1 2 4 5
+3,1 2 3 5
+4,1 2 3 4 5
+5,2 3 4
+...
+
+```
+| antecedent  | consequent | support | confidence |
+| ------------- | ------------- |
+| 4 232 | 141 | 0.9 |
+| 129 175  | 141  | 35 | 0.8333333333333334 |
+| 124 132 175  | 141  | 35 | 0.8333333333333334 | 
+| 124 126  | 132  #SUP: 37 #CONF: 0.8222222222222222
+| 175 232  | 124  #SUP: 38 #CONF: 0.8085106382978723
+| 16 124 141  | 132  #SUP: 36 #CONF: 0.8
+| 16 232  | 141  #SUP: 37 #CONF: 0.8043478260869565
+| 169 238  | 110  #SUP: 41 #CONF: 0.8367346938775511
+| 16 175  | 141  #SUP: 41 #CONF: 0.803921568627451
+| 6 232  | 124  #SUP: 39 #CONF: 0.8297872340425532
+
 ```
 
 TBD
