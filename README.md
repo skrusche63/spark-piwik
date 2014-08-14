@@ -167,7 +167,7 @@ class RuleBuilder {
 } 
 ```
 
-The table describes the result of the Top K Association Rule Mining, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`. The `RuleBuilder`depends on code basis of the [Spark-ARULES](https://github.com/skrusche63/spark-arules).
+The table describes the result of the Top K Association Rule Mining, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`. The `RuleBuilder`depends on the code base of the [Spark-ARULES](https://github.com/skrusche63/spark-arules) project.
 
 | antecedent  | consequent | support | confidence |
 | ------------- | ------------- |------------- | ------------- |
