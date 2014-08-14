@@ -64,63 +64,62 @@ idsite|idvisitor|idorder|timestamp|item item item ...
 
 The transformation is done by the following lines of Scala code:
 ```
-def fromLogConversion(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
+def fromLogConversionItem(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
 
-  val fields = LOG_FIELDS
-  /*
-   * Access to the log_conversion table is restricted to a time window,
-   * specified by a start and end date of format yyyy-mm-dd
-   */
-  val query = sql_logConversion.replace("$1",startdate).replace("$2",enddate)   
+  val fields = LOG_ITEM_FIELDS  
+
+  val query = sql_logConversionItem.replace("$1",startdate).replace("$2",enddate)    
   val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
-  /*
-   * Restrict to conversion that refer to ecommerce orders (idgoal = 0)
-   */
-  rows.filter(row => isOrder(row)).map(row => {
+    
+  val items = rows.filter(row => (isDeleted(row) == false)).map(row => {
       
     val idsite  = row("idsite").asInstanceOf[Long]
-    /*
-     * Convert 'idvisitor' into a HEX String representation
-     */
     val idvisitor = row("idvisitor").asInstanceOf[Array[Byte]]     
+
     val user = new java.math.BigInteger(1, idvisitor).toString(16)
-    /*
-     * Convert server_time into universal timestamp
-     */
+
     val server_time = row("server_time").asInstanceOf[java.sql.Timestamp]
     val timestamp = server_time.getTime()
       
     val idorder = row("idorder").asInstanceOf[String]      
-    val items = row("items").asInstanceOf[Int]
-      
-    /*
-     * For further analysis it is actually sufficient to
-     * focus on revenue_subtotal and revenue_discount
-     */
-    val revenue_subtotal = row("revenue_subtotal").asInstanceOf[Float]
-    val revenue_discount = row("revenue_discount").asInstanceOf[Float]
+    val idaction_sku = row("idaction_sku").asInstanceOf[Long]
+    
+    (idsite,user,idorder,idaction_sku,timestamp)
+    
+  })
 
-    "" + idsite + "|" + user + "|" + idorder + "|" + timestamp + "|" + revenue_subtotal + "|" + revenue_discount
+  items.groupBy(_._3).map(valu => {
+
+    val data = valu._2.toList.sortBy(_._5)      
+    val output = ArrayBuffer.empty[String]
+      
+    val (idsite,user,idorder,idaction_sku,timestamp) = data.head
+    output += idaction_sku.toString
+      
+    for (record <- data.tail) {
+      output += record._4.toString
+    }
+      
+    "" + idsite + "|" + user + "|" + idorder + "|" + timestamp + "|" + output.mkString(" ")
       
   })
     
 }
 ```
 Discovering the Top K Association Rules from the transactions above, does not require any reference to certain website (`idsite`), visitor (`idvisitor`) or order (`idorder`). It is sufficient to
-specify all items of a transaction in a single line, and apply a unique line number (`lno`):
+specify all items of a transaction in a single line, and assign a unique line number (`lno`):
 
 ```
 lno|item item item ...
 ----------------------
 
-0,1 2 4 5
-1,2 3 5
-2,1 2 4 5
-3,1 2 3 5
-4,1 2 3 4 5
-5,2 3 4
+0,4 232 141 6
+1,169 129 16
+2,16 6 175 126
+3,16 124 141 175
+4,16 124 175
+5,232 4 238
 ...
-
 ```
 
 The code below describes the `RuleBuilder` class that is responsible for discovering the association rules between the ecommerce items extracted from Piwik' database.

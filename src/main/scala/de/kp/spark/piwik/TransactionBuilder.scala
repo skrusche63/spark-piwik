@@ -139,7 +139,6 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
    * This output may directly be used to retrieve top K association rules
    */
   def fromLogConversionItem(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
-
     /*
      * Configured list of database fields to be taken into account
      * with this query
@@ -182,8 +181,7 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
       /*
        * Sort grouped orders by (ascending) timestamp
        */
-      val data = valu._2.toList.sortBy(_._5)
-      
+      val data = valu._2.toList.sortBy(_._5)      
       val output = ArrayBuffer.empty[String]
       
       val (idsite,user,idorder,idaction_sku,timestamp) = data.head
