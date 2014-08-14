@@ -129,7 +129,10 @@ lno|item item item ...
 ...
 ```
 
-The code below describes the `RuleBuilder` class that is responsible for discovering the association rules between the ecommerce items extracted from Piwik' database.
+The code below describes the `RuleBuilder` class that is responsible for discovering the association rules between the ecommerce items extracted from Piwik' database. 
+
+**Note**: The `RuleBuilder`depends on the code base of the [Spark-ARULES](https://github.com/skrusche63/spark-arules) project.
+
 ```
 class RuleBuilder {
 
@@ -167,7 +170,7 @@ class RuleBuilder {
 } 
 ```
 
-The table describes the result of the Top K Association Rule Mining, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`. The `RuleBuilder`depends on the code base of the [Spark-ARULES](https://github.com/skrusche63/spark-arules) project.
+The table describes the result of the Top K Association Rule Mining, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`. 
 
 | antecedent  | consequent | support | confidence |
 | ------------- | ------------- |------------- | ------------- |
