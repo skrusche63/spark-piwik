@@ -17,8 +17,9 @@ Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from
 
 > Integration is based on Piwik's MySQL database.
 
-The few lines of Scale code below show how to access customer engagement data persisted in Piwik's MySQL database. The connector requires the respective database location, name and user credentials. Customer engagement data 
-are retrieved by specifying the unique identifier `idsite` of a certain website supported by Piwik, and a specific query statement `query`.
+The few lines of Scale code below show how to access customer engagement data persisted in Piwik's MySQL database. The connector requires the respective database location, name and user credentials. 
+
+Customer engagement data are retrieved by specifying the unique identifier `idsite` of a certain website supported by Piwik, and a specific query statement `query`.
 ```
 object MySQLConnector {
 
