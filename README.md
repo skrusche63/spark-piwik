@@ -7,11 +7,11 @@ Piwik is a widely used web analytics platform, and, it is an appropriate startin
 From [piwik.org](http://piwik.org/)
 > Piwik is the leading open source web analytics platform that gives you valuable insights into your website’s visitors, your marketing campaigns and much more, so you can optimize your strategy and online experience of your visitors.
 
-Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from the Apache eco system enables to use Piwik with Association Rule & Frequent Sequence Mining, Context-Aware Recommendations, Markov Models and more to gain insights into customer engagement data far beyond traditional web analytics.
+Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from the Apache eco system enables to evaluate customer engagement data from Piwik with Association Rule & Frequent Sequence Mining, Context-Aware Recommendations, Markov Models and more to gain insights into customer engagement data far beyond traditional web analytics.
 
 ### Integration based on MySQL
 
-The few lines of Scale code below show howto easily access Piwik data persisted in a MySQL database table:
+The few lines of Scale code below show how to access customer engagement data persisted in Piwik's MySQL database:
 ```
 object MySQLConnector {
 
@@ -28,37 +28,24 @@ object MySQLConnector {
     result
     
   }
-  
-  /**
-   * Convert database row into Map[String,Any]
-   */
-  private def getRow(rs:ResultSet,fields:List[String]):Map[String,Any] = {
-    
-    val metadata = rs.getMetaData()
-    val numCols  = metadata.getColumnCount()
-    
-    val row = HashMap.empty[String,Any]
-    (1 to numCols).foreach(i => {
-      
-      val k = metadata.getColumnName(i)
-      val v = rs.getObject(i)
-      
-      if (fields.isEmpty) {
-        row += k -> v
-        
-      } else {        
-        if (fields.contains(k)) row += k -> v
-        
-      }
-      
-    })
-   
-    row.toMap
-    
-  }
 
 ```
 
+#### Purchase Horizon
+
+TBD
+
+#### Relations between Ecommerce Items 
+
+Association rule mining is a wide-spread method to discover interesting relations between items in large-scale databases. These relations 
+are specified as so called *association rules*. A very popular application area for association rules is the detection of regularities between 
+products in large-scale customer engagement data recorded by ecommerce websites or point-of-sale systems in supermarkets.
+
+For example, the rule [onions, potatoes] -> [burger] indicates that if a customer buys onions and potatoes together, he or she is likely to also buy 
+hamburger meat. Such information can be used as the basis for decisions about marketing activities such as, e.g., promotional pricing or product placements. 
+
+TBD
 
 ### Integration based on Spray and Apache Kafka
 
+TBD
