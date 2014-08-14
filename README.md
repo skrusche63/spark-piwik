@@ -45,7 +45,7 @@ For example, the rule [onions, potatoes] -> [burger] indicates that if a custome
 hamburger meat. Such information can be used as the basis for decisions about marketing activities such as, e.g., promotional pricing or product placements. 
 
 In this project, we load customer engagement data from the `piwik_log_conversion_item` table into Apache Spark and transforms these data into an 
-appropriate transaction format. To this end, all ecommerce items that refer to the same ecommerce order are aggregated into single line. This is done by the [`TransactionBuilder`](https://github.com/skrusche63/spark-piwik/blob/master/src/main/scala/de/kp/spark/piwik/TransactionBuilder.scala) class.
+appropriate transaction format. To this end, all ecommerce items that refer to the same ecommerce order are aggregated into single line.
 
 The output of this transformation has the following format:
 ```
@@ -59,6 +59,51 @@ idsite|idvisitor|idorder|timestamp|item item item ...
 
 ```
 
+The transformation is done by the following lines of Scala code:
+```
+  def fromLogConversion(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
+
+    val fields = LOG_FIELDS
+    /*
+     * Access to the log_conversion table is restricted to a time window,
+     * specified by a start and end date of format yyyy-mm-dd
+     */
+    val query = sql_logConversion.replace("$1",startdate).replace("$2",enddate)   
+    val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+  
+    /*
+     * Restrict to conversion that refer to ecommerce orders (idgoal = 0)
+     */
+    rows.filter(row => isOrder(row)).map(row => {
+      
+      val idsite  = row("idsite").asInstanceOf[Long]
+      /*
+       * Convert 'idvisitor' into a HEX String representation
+       */
+      val idvisitor = row("idvisitor").asInstanceOf[Array[Byte]]     
+      val user = new java.math.BigInteger(1, idvisitor).toString(16)
+      /*
+       * Convert server_time into universal timestamp
+       */
+      val server_time = row("server_time").asInstanceOf[java.sql.Timestamp]
+      val timestamp = server_time.getTime()
+      
+      val idorder = row("idorder").asInstanceOf[String]      
+      val items = row("items").asInstanceOf[Int]
+      
+      /*
+       * For further analysis it is actually sufficient to
+       * focus on revenue_subtotal and revenue_discount
+       */
+      val revenue_subtotal = row("revenue_subtotal").asInstanceOf[Float]
+      val revenue_discount = row("revenue_discount").asInstanceOf[Float]
+
+      "" + idsite + "|" + user + "|" + idorder + "|" + timestamp + "|" + revenue_subtotal + "|" + revenue_discount
+      
+    })
+    
+  }
+```
 
 TBD
 

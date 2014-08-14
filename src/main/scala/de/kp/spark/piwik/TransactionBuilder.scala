@@ -87,7 +87,7 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
    * output = ["idsite|user|idorder|timestamp|revenue_subtotal|revenue_discount"]
    * 
    * The output may directly be used to build markov states and predict e.g. the purchase horizon
-   */    
+   */        
   def fromLogConversion(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
 
     val fields = LOG_FIELDS
