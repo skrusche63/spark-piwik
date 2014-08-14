@@ -187,14 +187,21 @@ The table describes the result of the Top K Association Rule Mining, where `k = 
 
 From the association rules discovered it is no magic to support features such as
 
-> Customers who bought product A also bought product B and / C
+> Customers who bought product A also bought product B and / or C
 
 or even recommendations.
 
 TBD
 
-### Real-Time Engagement Data
+### Real-time Engagement Data
 
 > Integration is based on Spray, Apache Kafka and Piwik's tracking library (JavaScript).
+
+Historical customer engagement data are an appropriate means to discover valuable customer insights, and also to build predictive models, that may then be applied to customer engagement in real-time. In this project, we show how tracking events sent by 
+the Piwik tracking library (Javascript) may directly be received by a reactive REST server, delegated to a large-scale distributed message system, consumed by Apache Spark and finally evaluated by applying predictive models.
+
+TBD
+
+#### Real-time Outlier Detection
 
 TBD
