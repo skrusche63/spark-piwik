@@ -2,7 +2,9 @@
 
 ## Integration of Piwik Analytics with Apache Spark 
 
-Piwik is a widely used web analytics platform, and, it is an appropriate starting point for market basket analysis, user behavior analytics and more.
+In this project, we illustrate that Apache Spark not only is a fast and general engine for large-scale data processing, but also an appropriate means to integrate existing data source and make their data 
+applicable by sophisticated machine learning, mining and prediction algorithms. As a specific data source, we selected [Piwik Analytics](http://piwik.org/), which is a widely used open source platform for 
+web analytics, and, an appropriate starting point for market basket analysis, user behavior analytics and more.
 
 From [piwik.org](http://piwik.org/)
 > Piwik is the leading open source web analytics platform that gives you valuable insights into your website’s visitors, your marketing campaigns and much more, so you can optimize your strategy and online experience of your visitors.
@@ -11,7 +13,8 @@ Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from
 
 ### Integration based on MySQL
 
-The few lines of Scale code below show how to access customer engagement data persisted in Piwik's MySQL database:
+The few lines of Scale code below show how to access customer engagement data persisted in Piwik's MySQL database. The connector requires the respective database location, name and user credentials. Customer engagement data 
+are retrieved by specifying the unique identifier `idsite` of a certain website supported by Piwik, and a specific query statement `query`.
 ```
 object MySQLConnector {
 
@@ -124,6 +127,9 @@ The code below describes the `RuleBuilder` class that is responsible for discove
 ```
 class RuleBuilder {
 
+  /**
+   * input = ["idsite|user|idorder|timestamp|items"]
+   */
   def buildTopKRules(sc:SparkContext,dataset:RDD[String],k:Int=10,minconf:Double=0.8):String = {
     
     /* Prepare dataset */
@@ -135,14 +141,9 @@ class RuleBuilder {
      
   }
   
-  /**
-   * input = ["idsite|user|idorder|timestamp|items"]
-   */
-  def prepare(sc:SparkContext, dataset:RDD[String]):RDD[(Int,Array[String])] = {
+  def prepare(sc:SparkContext,dataset:RDD[String]):RDD[(Int,Array[String])] = {
 
-    /*
-     * Reduce dataset to items and repartition to single partition 
-     */
+    /* Reduce dataset to items and repartition to single partition */
     val items = dataset.map(line => line.split("|")(4)).coalesce(1)
     
     val index = sc.parallelize(Range.Long(0, items.count, 1),items.partitions.size)

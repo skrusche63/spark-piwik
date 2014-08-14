@@ -7,6 +7,9 @@ import de.kp.spark.arules.TopK
 
 class RuleBuilder {
 
+  /**
+   * input = ["idsite|user|idorder|timestamp|items"]
+   */
   def buildTopKRules(sc:SparkContext,dataset:RDD[String],k:Int=10,minconf:Double=0.8):String = {
     
     /* Prepare dataset */
@@ -18,14 +21,9 @@ class RuleBuilder {
      
   }
   
-  /**
-   * input = ["idsite|user|idorder|timestamp|items"]
-   */
-  def prepare(sc:SparkContext, dataset:RDD[String]):RDD[(Int,Array[String])] = {
+  def prepare(sc:SparkContext,dataset:RDD[String]):RDD[(Int,Array[String])] = {
 
-    /*
-     * Reduce dataset to items and repartition to single partition 
-     */
+    /* Reduce dataset to items and repartition to single partition */
     val items = dataset.map(line => line.split("|")(4)).coalesce(1)
     
     val index = sc.parallelize(Range.Long(0, items.count, 1),items.partitions.size)
