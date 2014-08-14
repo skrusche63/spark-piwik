@@ -7,14 +7,14 @@ import de.kp.spark.arules.TopK
 
 class RuleBuilder {
 
-  def buildTopKRules(sc:SparkContext,dataset:RDD[String],k:Int=10,minconf:Double=0.8) {
+  def buildTopKRules(sc:SparkContext,dataset:RDD[String],k:Int=10,minconf:Double=0.8):String = {
     
     /* Prepare dataset */
     val transactions = prepare(sc,dataset)
     
-    /* Extract rules */
+    /* Extract rules and convert into JSON */
     val rules = TopK.extractRDDRules(sc,transactions,k,minconf)
-    val jRules = TopK.rulesToJson(rules)
+    TopK.rulesToJson(rules)
      
   }
   

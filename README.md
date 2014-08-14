@@ -119,6 +119,47 @@ lno|item item item ...
 ...
 
 ```
+
+The code below describes the `RuleBuilder` class that is responsible for discovering the association rules between the ecommerce items extracted from Piwik' database.
+```
+class RuleBuilder {
+
+  def buildTopKRules(sc:SparkContext,dataset:RDD[String],k:Int=10,minconf:Double=0.8):String = {
+    
+    /* Prepare dataset */
+    val transactions = prepare(sc,dataset)
+    
+    /* Extract rules and convert into JSON */
+    val rules = TopK.extractRDDRules(sc,transactions,k,minconf)
+    TopK.rulesToJson(rules)
+     
+  }
+  
+  /**
+   * input = ["idsite|user|idorder|timestamp|items"]
+   */
+  def prepare(sc:SparkContext, dataset:RDD[String]):RDD[(Int,Array[String])] = {
+
+    /*
+     * Reduce dataset to items and repartition to single partition 
+     */
+    val items = dataset.map(line => line.split("|")(4)).coalesce(1)
+    
+    val index = sc.parallelize(Range.Long(0, items.count, 1),items.partitions.size)
+    val zip = items.zip(index) 
+    
+    zip.map(valu => {
+      
+      val (line,no) = valu
+      (no.toInt, line.split(" "))
+      
+    })
+   
+  }
+
+} 
+```
+
 The table describes the result of Top K Association Rules, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`.
 
 | antecedent  | consequent | support | confidence |
