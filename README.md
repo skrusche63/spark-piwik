@@ -185,6 +185,11 @@ The table describes the result of the Top K Association Rule Mining, where `k = 
 | 16 232       | 141  | 37 | 0.80 |
 | 16 175       | 141  | 41 | 0.80 |
 
+From the association rules discovered it is no magic to support features such as
+
+> Customers who bought product A also bought product B and / C
+
+or even recommendations.
 
 TBD
 
