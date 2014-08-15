@@ -61,7 +61,7 @@ TBD
 
 TBD
 
-#### Cross-selling and more 
+#### Cross-Selling and more 
 
 Association rule mining is a wide-spread method to discover interesting relations between items in large-scale databases. These relations 
 are specified as so called *association rules*. A very popular application area for association rules is the detection of regularities between 
