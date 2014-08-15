@@ -41,7 +41,16 @@ object MySQLConnector {
 
 ```
 
+#### Customer Loyalty
+
+TBD
+
 #### Purchase Horizon
+
+Customers of products or service have a natural rhythm with respect to his or her purchase behavior. Regular visitors tend to visit an ecommerce store according to some temporal patterns that are inherent in their purchase history.
+
+Email marketing or any other marketing campaign leads to better results if it will be aligned with these temporal patterns of the customers. This means that a marketing campaign that will go out at the right time for the right customer is obviously more effective than a campaign that does not take the customer's rhythm into account.
+
 
 TBD
 
