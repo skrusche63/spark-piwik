@@ -51,10 +51,14 @@ Customers of products or service have a natural rhythm with respect to his or he
 
 Email marketing or any other marketing campaign leads to better results if it will be aligned with these temporal patterns of the customers. This means that a marketing campaign that will go out at the right time for the right customer is obviously more effective than a campaign that does not take the customer's rhythm into account.
 
+Predicting the right purchase horizon for each customer requires to build a personalized predictive model from the 
+customer's historical engagement data. Once this model is available, it is easy to predict when a certain customer is likely to make the next purchase and how much he or she is likely to spend.
+
+Optimizing email marketing is just one use case for predictive models. As Piwik Analytics tracks the ecommerce items being purchased with each order or transaction, the predicted purchase horizon may also be combined with Association Rule Mining (see below) to recommend products or services for time delayed cross-selling.
 
 TBD
 
-#### Relations between Ecommerce Items 
+#### Cross-selling and more 
 
 Association rule mining is a wide-spread method to discover interesting relations between items in large-scale databases. These relations 
 are specified as so called *association rules*. A very popular application area for association rules is the detection of regularities between 
