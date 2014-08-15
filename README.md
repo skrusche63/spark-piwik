@@ -52,7 +52,9 @@ customer's historical engagement data. Once this model is available, it is easy 
 
 Optimizing email marketing is just one use case for predictive models. As Piwik Analytics tracks the ecommerce items being purchased with each order or transaction, the predicted purchase horizon may also be combined with Association Rule Mining (see below) to recommend products or services for time delayed cross-selling.
 
-In this project, we use personalized [Markov Models](http://www.cs.sjsu.edu/faculty/stamp/RUA/HMM.pdf) to predict the 
+In this project, we use personalized [Markov Models](http://www.cs.sjsu.edu/faculty/stamp/RUA/HMM.pdf) to predict 
+when a customer is likely to make the next purchase.
+
 TBD
 
 #### Customer Loyalty
