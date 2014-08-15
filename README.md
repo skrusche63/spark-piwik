@@ -189,7 +189,13 @@ From the association rules discovered it is no magic to support features such as
 
 > Customers who bought product A also bought product B and / or C
 
-or even recommendations.
+or even recommendations. The use case described above for applying Association Rule Mining focuses on a single predicate, i.e. `buys`, and the items evaluated are solely ecommerce items from a web store. The customer engagement data available from Piwik's database, however, offer the opportunity to evaluate higher dimensional predicates.
+
+From the `piwik_log_conversion` table, we may easily extract further predicates, such as customer `location`, item `quantity` and more. Transforming these predicates into categorical variables (having a discrete set of possible values), such as `city = berlin` or `daytime = afternoon`, enables to assign additional item identifiers.
+
+Taking those additional predicates into account leads to more detailed association rules:
+
+> daytime("afternoon") AND location("berlin") AND buys("onions") AND buys("tomatoes") -> buys("burger") 
 
 TBD
 
