@@ -41,10 +41,6 @@ object MySQLConnector {
 
 ```
 
-#### Customer Loyalty
-
-TBD
-
 #### Purchase Horizon
 
 Customers of products or service have a natural rhythm with respect to his or her purchase behavior. Regular visitors tend to visit an ecommerce store according to some temporal patterns that are inherent in their purchase history.
@@ -55,6 +51,11 @@ Predicting the right purchase horizon for each customer requires to build a pers
 customer's historical engagement data. Once this model is available, it is easy to predict when a certain customer is likely to make the next purchase and how much he or she is likely to spend.
 
 Optimizing email marketing is just one use case for predictive models. As Piwik Analytics tracks the ecommerce items being purchased with each order or transaction, the predicted purchase horizon may also be combined with Association Rule Mining (see below) to recommend products or services for time delayed cross-selling.
+
+In this project, we use personalized [Markov Models](http://www.cs.sjsu.edu/faculty/stamp/RUA/HMM.pdf) to predict the 
+TBD
+
+#### Customer Loyalty
 
 TBD
 
