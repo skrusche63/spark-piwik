@@ -280,6 +280,8 @@ In this project, we show how customer events sent by the Piwik tracking library 
 
 *To be done*
 
+---
+
 ### Technology Stack
 
 * Akka
