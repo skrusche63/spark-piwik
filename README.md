@@ -241,6 +241,10 @@ Taking those additional predicates into account leads to more detailed associati
 
 > daytime("afternoon") AND location("berlin") AND buys("onions") AND buys("tomatoes") -> buys("burger") 
 
+We have discussed association rules so far with respect to ecommerce events. The technique may - of course -  also be applied to pageview events. In this scenario, a transaction specifies a web session or visit, and an item characterizes a certain web page (url). 
+
+Instead of retrieving customer engagement data from the `piwik_log_conversion_item` table, transactions are derived from the `piwik_log_link_visit_action` table.
+
 ---
 
 ### Real-time Engagement Data
