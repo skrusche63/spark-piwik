@@ -59,6 +59,11 @@ The idea behind this approach is to aggregate customer transaction data into dis
 
 With this transition probability in mind, it is no magic to compute the next probable state.
 
+In this project, we focus on the parameters `server_time` and `revenue_subtotal` from Piwik's `piwik_log_conversion` table, and represent a state by a two letter symbol:
+
+| Time since last transaction | Revenue compared to last transaction |
+| --- | --- |
+
 TBD
 
 #### Customer Loyalty
