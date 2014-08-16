@@ -47,6 +47,25 @@ object MarkovPredictor extends MarkovBase {
     }).collect().toMap
     
   }
+
+  /**
+   * This method predicts the next purchase horizon for a certain tenant (idsite)
+   * and from a set of customer transactions within a specific time window
+   */
+  def predict(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[(String,Long,Float)] = {
+    
+    val url = settings("mysql.url")
+    val database = settings("mysql.db")
+    
+    val user = settings("mysql.user")
+    val password = settings("mysql.password")
+
+    val tb = new TransactionBuilder(url,database,user,password)
+    val conversions = tb.fromLogConversion(sc, idsite, startdate, enddate)
+
+    predict(sc,conversions)
+    
+  }
   
   /**
    * input: ["idsite|user|idorder|timestamp|revenue_subtotal|revenue_discount"]

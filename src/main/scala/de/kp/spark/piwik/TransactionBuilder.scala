@@ -79,6 +79,21 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
       "price",
       "quantity",
       "deleted")
+  
+  /*
+   * Table: piwik_log_link_visit_action 
+   */
+  private val sql_logLinkVisitAction = """
+    SELECT * FROM analytics.piwik_log_link_visit_action WHERE idsite >= ? AND idsite <= ? AND server_time > '$1' AND server_time < '$2'
+    """.stripMargin
+      
+  private val LOG_LINK_VISIT_ACTION_FIELDS = List(
+      "idsite",
+      "idvisitor",
+      "server_time",
+      "idvisit",
+      "idaction_url"
+    )
     
   /**
    * This method retrieves selected fields from the piwi_log_conversion_item table, filtered
@@ -197,6 +212,60 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
     
   }
   
+  def fromLogLinkVisitAction(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
+    
+    val fields = LOG_LINK_VISIT_ACTION_FIELDS
+    /*
+     * Access to the log_conversion table is restricted to a time window,
+     * specified by a start and end date of format yyyy-mm-dd
+     */
+    val query = sql_logLinkVisitAction.replace("$1",startdate).replace("$2",enddate)   
+    val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+
+    val items = rows.map(row => {
+      
+      val idsite  = row("idsite").asInstanceOf[Long]
+      /*
+       * Convert 'idvisitor' into a HEX String representation
+       */
+      val idvisitor = row("idvisitor").asInstanceOf[Array[Byte]]     
+      val user = new java.math.BigInteger(1, idvisitor).toString(16)
+      /*
+       * Convert server_time into universal timestamp
+       */
+      val server_time = row("server_time").asInstanceOf[java.sql.Timestamp]
+      val timestamp = server_time.getTime()
+      
+      val idvisit = row("idvisit").asInstanceOf[Long]      
+      val idaction_url = row("idaction_rul").asInstanceOf[Long]
+    
+      (idsite,user,idvisit,idaction_url,timestamp)
+    
+    })
+
+    /*
+     * Group items by 'idvisit' and aggregate all items of a single visit
+     * into a single line
+     */
+    items.groupBy(_._3).map(valu => {
+      /*
+       * Sort grouped visits by (ascending) timestamp
+       */
+      val data = valu._2.toList.sortBy(_._5)      
+      val output = ArrayBuffer.empty[String]
+      
+      val (idsite,user,idvisit,idaction_url,timestamp) = data.head
+      output += idaction_url.toString
+      
+      for (record <- data.tail) {
+        output += record._4.toString
+      }
+      
+      "" + idsite + "|" + user + "|" + idvisit + "|" + timestamp + "|" + output.mkString(" ")
+      
+    })
+    
+  }
   /**
    * A commerce item may be deleted from a certain order
    */
