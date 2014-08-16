@@ -4,7 +4,7 @@
 
 > Transform customer engagement data from Piwik Analytics into actionable business insights.
 
-In this project, we illustrate that Apache Spark not only is a fast and general engine for large-scale data processing, but also an appropriate means to integrate existing data source and make their data 
+In this project, we illustrate that Apache Spark not only is a fast and general engine for large-scale data processing, but also an appropriate means to integrate existing data sources and make their data 
 applicable by sophisticated machine learning, mining and prediction algorithms. As a specific data source, we selected [Piwik Analytics](http://piwik.org/), which is a widely used open source platform for 
 web analytics, and, an appropriate starting point for market basket analysis, user behavior analytics and more.
 
@@ -55,7 +55,35 @@ Optimizing email marketing is just one use case for predictive models. As Piwik 
 In this project, we use personalized [Markov Models](http://www.cs.sjsu.edu/faculty/stamp/RUA/HMM.pdf) to predict 
 when a customer is likely to make the next purchase.
 
-TBD
+The idea behind this approach is to aggregate customer transaction data into discrete well-defined states. A timely ordered list of customer transaction may then be interpreted as a sequence of states, where each pair of subsequent states is accompanied by a state transition probability.
+
+With this transition probability in mind, it is no magic to compute the next probable state.
+
+In this project, we focus on `server_time` and `revenue_subtotal` from Piwik's `piwik_log_conversion` table, and represent a state by a two letter symbol:
+
+| Time since last transaction | Revenue compared to last transaction |
+| --- | --- |
+| S: Small | L: Significantly less |
+| M: Medium | E: More or less equal |
+| L: Large | G: Significantly greater |
+
+Transactions are then described as sequences of states:
+```
+idsite|idvisitor|state state state ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|SG SL SG 
+1|b65ce95de5c8e7ea|SL SG LL SG
+1|b65ce95de5c8e7ea|LL SG MG LL
+...
+
+```
+From this representation of customer transactions, we count the frequency of subsequent state pairs, i.e. `(SG,SL)` or `(LL,SG)`, normalize and scale these frequencies to finally end up with state transition probabilities.
+
+The functionality described above is covered by the `MarkovBuilder`, that is also responsible for serializing and persisting the derived personalized predictive models.
+
+Finally, the `MarkovPredictor is responsible for predicting the next likely time and amount of transaction, using the personalized Markov Models as well as the last transactions of a certain customer. 
+
 
 #### Customer Loyalty
 
@@ -213,7 +241,7 @@ Taking those additional predicates into account leads to more detailed associati
 
 > daytime("afternoon") AND location("berlin") AND buys("onions") AND buys("tomatoes") -> buys("burger") 
 
-TBD
+---
 
 ### Real-time Engagement Data
 
