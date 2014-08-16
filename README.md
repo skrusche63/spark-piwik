@@ -99,6 +99,8 @@ Loyalty, however, can not be directly observer and measured. It is an internal c
 
 We suggest to predict a sequence of (hidden) customer loyalty states from a sequence of observed customer engagement data by using a [Hidden Markov Model](http://en.wikipedia.org/wiki/Hidden_Markov_model). Identifying customers with a downward loyalty curve with such analysis can directly trigger proactive actions to resurrect the relationships of these customers.
 
+In the following, we make use of the functionality of the [Spark-HMM](https://github.com/skrusche63/scala-hmm) project.
+
 *To be continued*
 
 #### Cross-Selling and more 
