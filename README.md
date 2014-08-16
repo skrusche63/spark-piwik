@@ -43,9 +43,25 @@ object MySQLConnector {
 
 #### Purchase Horizon
 
+Customers of products or service have a natural rhythm with respect to his or her purchase behavior. Regular visitors tend to visit an ecommerce store according to some temporal patterns that are inherent in their purchase history.
+
+Email marketing or any other marketing campaign leads to better results if it will be aligned with these temporal patterns of the customers. This means that a marketing campaign that will go out at the right time for the right customer is obviously more effective than a campaign that does not take the customer's rhythm into account.
+
+Predicting the right purchase horizon for each customer requires to build a personalized predictive model from the 
+customer's historical engagement data. Once this model is available, it is easy to predict when a certain customer is likely to make the next purchase and how much he or she is likely to spend.
+
+Optimizing email marketing is just one use case for predictive models. As Piwik Analytics tracks the ecommerce items being purchased with each order or transaction, the predicted purchase horizon may also be combined with Association Rule Mining (see below) to recommend products or services for time delayed cross-selling.
+
+In this project, we use personalized [Markov Models](http://www.cs.sjsu.edu/faculty/stamp/RUA/HMM.pdf) to predict 
+when a customer is likely to make the next purchase.
+
 TBD
 
-#### Relations between Ecommerce Items 
+#### Customer Loyalty
+
+TBD
+
+#### Cross-Selling and more 
 
 Association rule mining is a wide-spread method to discover interesting relations between items in large-scale databases. These relations 
 are specified as so called *association rules*. A very popular application area for association rules is the detection of regularities between 
@@ -189,7 +205,13 @@ From the association rules discovered it is no magic to support features such as
 
 > Customers who bought product A also bought product B and / or C
 
-or even recommendations.
+or even recommendations. The use case described above for applying Association Rule Mining focuses on a single predicate, i.e. `buys`, and the items evaluated are solely ecommerce items from a web store. The customer engagement data available from Piwik's database, however, offer the opportunity to evaluate higher dimensional predicates.
+
+From the `piwik_log_conversion` table, we may easily extract further predicates, such as customer `location`, item `quantity` and more. Transforming these predicates into categorical variables (having a discrete set of possible values), such as `city = berlin` or `daytime = afternoon`, enables to assign additional item identifiers.
+
+Taking those additional predicates into account leads to more detailed association rules:
+
+> daytime("afternoon") AND location("berlin") AND buys("onions") AND buys("tomatoes") -> buys("burger") 
 
 TBD
 
