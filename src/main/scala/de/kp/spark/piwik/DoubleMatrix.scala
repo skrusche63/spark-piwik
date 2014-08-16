@@ -75,19 +75,26 @@ class DoubleMatrix(numRow:Int,numCol:Int) {
 	
   }
 	
-  def serialize(delimiter:String):String = {
+  def serialize():String = {
 		
     val output = ArrayBuffer.empty[String]		
-    (0 until numRow).foreach(row => output += serializeRow(row,delimiter))
+    (0 until numRow).foreach(row => output += serializeRow(row))
 	
-    output.mkString(delimiter)
+    output.mkString(";")
 	
   }
+  
+  def serializeRow(row:Int):String = table(row).mkString(",")
 
-  def serializeRow(row:Int,delimiter:String):String = table(row).mkString(delimiter)
+  def deserialize(data:String) {
+    
+    val rows = data.split(";")
+    (0 until rows.length).foreach(row => deserializeRow(row,rows(row)))
+    
+  }
 	
-  def deseralizeRow(row:Int,data:String,delimiter:String) {
-    table(row) = data.split(delimiter).map(_.toDouble)
+  def deserializeRow(row:Int,data:String) {
+    table(row) = data.split(",").map(_.toDouble)
   }
 	
 

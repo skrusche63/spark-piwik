@@ -21,32 +21,44 @@ package de.kp.spark.piwik
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-import scala.collection.mutable.{ArrayBuffer,HashMap}
+import scala.collection.mutable.HashMap
 
 private case class Pair(ant:String,con:String)
 
-class MarkovBuilder {
+object MarkovBuilder extends MarkovBase {
 
-  private val DAY = 24 * 60 * 60 * 1000 // day in milliseconds
-
-  private val SCALE = 1
-  private val STATE_DEFS = Array("SL", "SE", "SG", "ML", "ME", "MG", "LL", "LE", "LG")
-
-  /*
-   * Time thresholds
-   */
-  private val SMALL_DATE_THRESHOLD  = 30
-  private val MEDIUM_DATE_THRESHOLD = 60
-  /*
-   * Amount thresholds
-   */
-  private val LESS_AMOUNT_THRESHOLD  = 0.9
-  private val EQUAL_AMOUNT_THRESHOLD = 1.1
-  
   /**
-   * 
-   * input: ["idsite|user|idorder|timestamp|revenue_subtotal|revenue_discount"]
-   * 
+   * Build and persist Markov Model for a certain idsite and a period of time 
+   */
+  def buildModel(sc:SparkContext,idsite:Int,startdate:String,enddate:String, output:String) {
+    
+    /* Generate model */
+    val model = buildModel(sc,idsite,startdate,enddate)
+    
+    /*
+     * Serialize and persist model
+     */
+    model.map(valu => valu._1 + "|" + valu._2.serialize()).saveAsTextFile(output)
+
+  }
+
+  def buildModel(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[(String,TransitionMatrix)] = {
+    
+    val url = settings("mysql.url")
+    val database = settings("mysql.db")
+    
+    val user = settings("mysql.user")
+    val password = settings("mysql.password")
+
+    val tb = new TransactionBuilder(url,database,user,password)
+    val conversions = tb.fromLogConversion(sc, idsite, startdate, enddate)
+
+    buildModel(sc,conversions)
+    
+  }
+
+  /**
+   * input: RDD["idsite|user|idorder|timestamp|revenue_subtotal|revenue_discount"]
    */
   def buildModel(sc:SparkContext,dataset:RDD[String]):RDD[(String,TransitionMatrix)] = {
     
@@ -55,7 +67,7 @@ class MarkovBuilder {
      * a list of timely order states from these data; finally, filter the 
      * result to remove all transactions that are described by a single state
      */
-    val stateTransactions = prepare(sc,dataset).groupBy(_._1).map(
+    val states = prepare(sc,dataset).groupBy(_._1).map(
       valu => (valu._1, createState(valu._2.toList.sortBy(_._2)))
     ).filter(valu => valu._2.length >= 2)
     
@@ -64,7 +76,7 @@ class MarkovBuilder {
      * and build transition probability matrix; note, that probabilities
      * are calculated by normalizing the transition (pair) support
      */
-    stateTransactions.map(valu => {
+    states.map(valu => {
       
       val (cid,cstates) = valu
       
@@ -100,94 +112,6 @@ class MarkovBuilder {
 	  
     })
     
-  }
-
-  private def prepare(sc:SparkContext,dataset:RDD[String]):RDD[(String,Long,Float)] = {
-    
-    dataset.map(line => {
-     
-      val parts = line.split("|")
-      /*
-       * Build customer identifier by combining idsite & user;
-       * for further processing, we ignore idorder, as each
-       * line references a single order
-       */
-      val cid = parts(0) + "|" + parts(1)
-      (cid,parts(3).toLong,parts(4).toFloat)
-      
-    })
-    
-  }
-  
-  private def createState(data:List[(String,Long,Float)]):List[String] = {
-    
-    var first = true
-    
-    var prevDate:Long    = 0
-    var prevAmount:Float = 0
-    
-    val states = ArrayBuffer.empty[String]
-    for (record <- data) {
-      
-      if (first) {
-        
-        prevDate   = record._2
-        prevAmount = record._3
-        
-        first = false
-        
-      } else {
-        
-        val date   = record._2
-        val amount = record._3
-        
-        val dstate = time2state(date,prevDate)
-        val astate = amount2state(amount,prevAmount)
-
-        states += (dstate + astate)
-        
-        prevDate   = date
-        prevAmount = amount
-        
-      }
-    
-    }   
-   
-    states.toList
-    
-  }
-
-  /**
-   * Amount spent compared to previous transaction
-   * 
-   * L : significantly less than
-   * E : more or less same
-   * G : significantly greater than
-   * 
-   */
-  private def amount2state(next:Float,previous:Float):String = {
-    
-    if (previous < LESS_AMOUNT_THRESHOLD * next) "L"
-     else if (previous < EQUAL_AMOUNT_THRESHOLD * next) "E"
-     else "G"
-    
-  }
-  
-  /**   
-   * This method translates a period of time, i.e. the time 
-   * elapsed since last transaction into 3 discrete states:
-   * 
-   * S : small, M : medium, L : large
-   * 
-   */
-  private def time2state(next:Long,previous:Long):String = {
-    
-    val period = (next -previous) / DAY
-    
-    if (period < SMALL_DATE_THRESHOLD) "S"
-    else if (period < MEDIUM_DATE_THRESHOLD) "M"
-    else "L"
-  
   }
 
 }
