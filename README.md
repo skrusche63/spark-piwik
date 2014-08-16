@@ -55,6 +55,10 @@ Optimizing email marketing is just one use case for predictive models. As Piwik 
 In this project, we use personalized [Markov Models](http://www.cs.sjsu.edu/faculty/stamp/RUA/HMM.pdf) to predict 
 when a customer is likely to make the next purchase.
 
+The idea behind this approach is to aggregate customer transaction data into discrete well-defined states. A timely ordered list of customer transaction may then be interpreted as a sequence of states, where each pair of subsequent states is accompanied by a state transition probability.
+
+With this transition probability in mind, it is no magic to compute the next probable state.
+
 TBD
 
 #### Customer Loyalty
