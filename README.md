@@ -78,6 +78,12 @@ idsite|idvisitor|state state state ...
 ...
 
 ```
+From this representation of customer transactions, we count the frequency of subsequent state pairs, i.e. `(SG,SL)` or `(LL,SG)`, normalize and scale these frequencies to finally end up with state transition probabilities.
+
+The functionality described above is covered by the `MarkovBuilder`, that is also responsible for serializing and persisting the derived personalized predictive models.
+
+Finally, the `MarkovPredictor is responsible for predicting the next likely time and amount of transaction, using the personalized Markov Models as well as the last transactions of a certain customer. 
+
 
 #### Customer Loyalty
 
