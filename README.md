@@ -274,8 +274,16 @@ In this project, we show how customer events sent by the Piwik tracking library 
 * consumed by Apache Spark and 
 * finally evaluated by applying predictive models.
 
-TBD
+*To be continued*
 
 #### Real-time Outlier Detection
 
-TBD
+*To be done*
+
+### Technology Stack
+
+* Akka
+* Apache Kafka
+* Apache Spark
+* Spray
+* MySQL
