@@ -79,9 +79,6 @@ idsite|idvisitor|state state state ...
 
 ```
 
-
-TBD
-
 #### Customer Loyalty
 
 TBD
@@ -238,7 +235,7 @@ Taking those additional predicates into account leads to more detailed associati
 
 > daytime("afternoon") AND location("berlin") AND buys("onions") AND buys("tomatoes") -> buys("burger") 
 
-TBD
+---
 
 ### Real-time Engagement Data
 
