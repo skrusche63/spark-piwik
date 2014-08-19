@@ -42,6 +42,12 @@ class DoubleMatrix(numRow:Int,numCol:Int) {
 
   def getRow(row:Int):Array[Double] = table(row)
 	
+  def getRow(rowLabel:String):Array[Double] = table(rowLabels.indexOf(rowLabel))    
+ 
+  def getRowLabel(col:Int) = rowLabels(col)
+
+  def getColLabel(col:Int) = colLabels(col)
+  
   def add(row:Int,col:Int,valu:Double) {
 	table(row)(col) = table(row)(col) + valu
   }
