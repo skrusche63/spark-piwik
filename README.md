@@ -1,6 +1,6 @@
 ![Dr.Krusche & Partner PartG](https://raw.github.com/skrusche63/spark-elastic/master/images/dr-kruscheundpartner.png)
 
-## Integration of Piwik Analytics with Apache Spark 
+## Piwik Web Analytics meets Apache Spark 
 
 > Transform customer engagement data from Piwik Analytics into actionable business insights.
 
@@ -87,7 +87,21 @@ Finally, the `MarkovPredictor is responsible for predicting the next likely time
 
 #### Customer Loyalty
 
-TBD
+The customer's engagement with a business is reflected by a wide range of events, such as e-commerce orders (or transactions), service calls, social media comments and more. All these events are indicative of the customer's loyalty to a certain business.
+
+Loyalty is usually defined as the strength of the relationship between a customer and a certain business. A higher degree of loyalty results in more purchase orders at a higher frequency.
+
+Customer loyalty is an important parameter for almost any kind of business, and can e.g. be used to measure the effectiveness of marketing campaigns. Following a campaign, the loyalty curve can be analyzed for a certain period of time to see if there is any significant impact on customers loyalty.
+
+Loyalty, however, can not be directly observer and measured. It is an internal customer state, that must be inferred adn predicted from customer engagement events.
+
+> Customer Loyalty is a highly valuable business insight derived from customer engagement data using **Predictive Analytics**.
+
+We suggest to predict a sequence of (hidden) customer loyalty states from a sequence of observed customer engagement data by using a [Hidden Markov Model](http://en.wikipedia.org/wiki/Hidden_Markov_model). Identifying customers with a downward loyalty curve with such analysis can directly trigger proactive actions to resurrect the relationships of these customers.
+
+In the following, we make use of the functionality of the [Spark-HMM](https://github.com/skrusche63/scala-hmm) project.
+
+*To be continued*
 
 #### Cross-Selling and more 
 
@@ -241,6 +255,10 @@ Taking those additional predicates into account leads to more detailed associati
 
 > daytime("afternoon") AND location("berlin") AND buys("onions") AND buys("tomatoes") -> buys("burger") 
 
+We have discussed association rules so far with respect to ecommerce events. The technique may - of course -  also be applied to pageview events. In this scenario, a transaction specifies a web session or visit, and an item characterizes a certain web page (url). 
+
+Instead of retrieving customer engagement data from the `piwik_log_conversion_item` table, transactions are derived from the `piwik_log_link_visit_action` table.
+
 ---
 
 ### Real-time Engagement Data
@@ -256,8 +274,18 @@ In this project, we show how customer events sent by the Piwik tracking library 
 * consumed by Apache Spark and 
 * finally evaluated by applying predictive models.
 
-TBD
+*To be continued*
 
 #### Real-time Outlier Detection
 
-TBD
+*To be done*
+
+---
+
+### Technology Stack
+
+* Akka
+* Apache Kafka
+* Apache Spark
+* Spray
+* MySQL
