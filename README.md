@@ -259,6 +259,27 @@ We have discussed association rules so far with respect to ecommerce events. The
 
 Instead of retrieving customer engagement data from the `piwik_log_conversion_item` table, transactions are derived from the `piwik_log_link_visit_action` table.
 
+#### Customer Similarity
+
+Customer engagement data from Piwik's `piwik_log_conversion_item` table is easily transformed into sequential data, where each customer order or transaction is aggregated into an itemset, and all those itemsets in a certain time window form a sequence of itemsets.
+
+These sequences describe the temporally customer purchase behavior. This is the starting point for discovering and grouping users with similar purchase behavior.
+
+In this project, we have published a `SimilarityBuilder`, which computes the purchase sequence similarities within a sequence database, and then determines the K most similar customers or visitors with respect to a selected customer.
+
+The `SimilarityBuilder` starts with engagement data from the `piwik_log_conversion_item` table transformed into the following format (see above):
+
+```
+idsite|idvisitor|idorder|timestamp|item item item ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|A10000124|1407986582000|1 2 4 5 
+1|b65ce95de5c8e7ea|A10000123|1407931845000|2 3 5
+1|b65ce95de5c8e7ea|A10000125|1407986689000|1 2 4 5
+...
+```
+
+
 ---
 
 ### Real-time Engagement Data
