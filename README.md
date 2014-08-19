@@ -280,39 +280,31 @@ idsite|idvisitor|idorder|timestamp|item item item ...
 ```
 From these data, it is only a few lines of Scala code to calculate a similarity matrix, which specifies the similarity of users `(i,j)` with respect to their purchase behavior:
 ```
-  def build(sc:SparkContext,source:RDD[String],output:String) {
+def build(sc:SparkContext,source:RDD[String],output:String) {
 
-    val dataset = source.map(line => {
-      
-      val Array(idsite,user,idorder,timestamp,items) = line.split("|")
-      
-      val cid = idsite + "|" + user
-      (cid,idorder,timestamp.toLong,items)
-      
-    }).groupBy(_._2)
+  val dataset = source.map(line => {
     
-    /*
-     * The dataset must be repartitioned to 1 in order
-     * to assign sequence numbers (sid) properly
-     */
-    val sequences = dataset.map(valu => {
-      
-      val records = valu._2.toList.sortBy(_._3)
-      
-      val cid = records.head._1
-      /*
-       * The sequence format built is compliant with the SPMF format,
-       * which is a multi-purpose starting point from sequence mining 
-       */
-      val sequence = records.map(_._4.split(" ").map(_.toInt)).toArray
-      
-      (cid,sequence)
-      
-    })
+    val Array(idsite,user,idorder,timestamp,items) = line.split("|")
     
-    matrix = computeSimilarity(sequences)
+    val cid = idsite + "|" + user
+    (cid,idorder,timestamp.toLong,items)
     
-  }
+  }).groupBy(_._2)
+    
+  val sequences = dataset.map(valu => {
+      
+    val records = valu._2.toList.sortBy(_._3)
+      
+    val cid = records.head._1
+    val sequence = records.map(_._4.split(" ").map(_.toInt)).toArray
+      
+    (cid,sequence)
+      
+  })
+    
+  matrix = computeSimilarity(sequences)
+    
+}
 
 ```
 
