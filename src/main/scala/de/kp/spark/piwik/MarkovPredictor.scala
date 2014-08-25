@@ -20,6 +20,7 @@ package de.kp.spark.piwik
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import de.kp.spark.piwik.builder.TransactionBuilder
 
 object MarkovPredictor extends MarkovBase {
   

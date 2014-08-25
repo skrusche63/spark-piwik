@@ -1,8 +1,7 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.arules
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-
 import de.kp.spark.arules.TopK
 
 class RuleBuilder {
@@ -24,7 +23,7 @@ class RuleBuilder {
   def prepare(sc:SparkContext,dataset:RDD[String]):RDD[(Int,Array[String])] = {
 
     /* Reduce dataset to items and repartition to single partition */
-    val items = dataset.map(line => line.split("|")(4)).coalesce(1)
+    val items = dataset.map(line => line.split("\\|")(4)).coalesce(1)
     
     val index = sc.parallelize(Range.Long(0, items.count, 1),items.partitions.size)
     val zip = items.zip(index) 

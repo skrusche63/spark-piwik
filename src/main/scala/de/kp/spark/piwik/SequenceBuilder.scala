@@ -31,7 +31,7 @@ class SequenceBuilder {
 
     val dataset = source.map(line => {
       
-      val Array(idsite,user,idorder,timestamp,items) = line.split("|")
+      val Array(idsite,user,idorder,timestamp,items) = line.split("\\|")
       
       val cid = idsite + "|" + user
       (cid,idorder,timestamp.toLong,items)

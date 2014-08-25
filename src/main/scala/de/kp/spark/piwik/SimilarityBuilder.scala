@@ -21,7 +21,7 @@ package de.kp.spark.piwik
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-import de.kp.spark.fsm.sim.SeqSimilarity
+import de.kp.spark.fsm.sim.SMeasure
 
 object SimilarityBuilder {
 
@@ -82,7 +82,7 @@ object SimilarityBuilder {
   
   private def computeSimilarity(source:RDD[(String,Array[Array[Int]])]):DoubleMatrix = {
 
-    val seqSim = new SeqSimilarity()
+    val meas = new SMeasure()
     
     val dataset = source.collect()
     
@@ -98,7 +98,7 @@ object SimilarityBuilder {
         val seq_i = dataset(i)
         val seq_j = dataset(j)
       
-        val sim = seqSim.compute(seq_i._2, seq_j._2)
+        val sim = meas.compute(seq_i._2, seq_j._2)
         matrix.add(seq_i._1,seq_j._1,sim)
         
       })

@@ -24,7 +24,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.mllib.linalg.{Vector,Vectors}
 import org.apache.spark.mllib.clustering.KMeans
 
-import de.kp.spark.fsm.sim.SeqSimilarity
+import de.kp.spark.fsm.sim.SMeasure
 
 private case class Sequence(sid:Int,itemsets:Array[Array[Int]])
 
@@ -68,10 +68,10 @@ object SeqCluster {
   
   private def computeVector(seq1:Sequence,sequences:Array[Sequence]):(Int,Vector) = {
     
-    val simBuilder = new SeqSimilarity()
+    val meas = new SMeasure()
     
     val sid = seq1.sid
-    val vec = sequences.map(seq2 => simBuilder.compute(seq1.itemsets, seq2.itemsets))
+    val vec = sequences.map(seq2 => meas.compute(seq1.itemsets, seq2.itemsets))
     
     (sid,Vectors.dense(vec))
     

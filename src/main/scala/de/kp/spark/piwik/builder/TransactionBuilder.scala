@@ -1,4 +1,4 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.builder
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -18,12 +18,8 @@ package de.kp.spark.piwik
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.nio.charset.Charset
-
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-
-import org.apache.commons.codec.binary.Hex
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -31,69 +27,7 @@ import scala.collection.mutable.ArrayBuffer
  * The TransactionBuilder is the bridge between the visitor engagement data stored
  * in a MySQL database and more sophisticate mining & prediction techniques
  */
-class TransactionBuilder(url:String,database:String,user:String,password:String) extends Serializable {
-
-  /*
-   * Table: piwik_log_conversion
-   */
-  private val sql_logConversion = """
-    SELECT * FROM analytics.piwik_log_conversion WHERE idsite >= ? AND idsite <= ? AND server_time > '$1' AND server_time < '$2'
-    """.stripMargin 
-
-  private val LOG_FIELDS = List(
-      "idsite",
-      "idvisitor",
-      "server_time",
-      "location_country",
-      "location_region",
-      "location_city",
-      "location_latitude",
-      "location_longitude",
-      "idgoal",
-      "idorder",
-      "items",
-      "revenue",
-      "revenue_subtotal",
-      "revenue_tax",
-      "revenue_shipping",
-      "revenue_discount")
-
-  /*
-   * Table: piwik_log_conversion_item
-   */
-  private val sql_logConversionItem = """
-    SELECT * FROM analytics.piwik_log_conversion_item WHERE idsite >= ? AND idsite <= ? AND server_time > '$1' AND server_time < '$2'
-    """.stripMargin 
-
-  private val LOG_ITEM_FIELDS = List(
-      "idsite",
-      "idvisitor",
-      "server_time",
-      "idorder",
-      /*
-       * idaction_xxx are references to unique entries into the piwik_log_action table, 
-       * i.e. two items with the same SKU do have the same idaction_sku; the idaction_sku
-       * may therefore directly be used as an item identifier
-       */
-      "idaction_sku",
-      "price",
-      "quantity",
-      "deleted")
-  
-  /*
-   * Table: piwik_log_link_visit_action 
-   */
-  private val sql_logLinkVisitAction = """
-    SELECT * FROM analytics.piwik_log_link_visit_action WHERE idsite >= ? AND idsite <= ? AND server_time > '$1' AND server_time < '$2'
-    """.stripMargin
-      
-  private val LOG_LINK_VISIT_ACTION_FIELDS = List(
-      "idsite",
-      "idvisitor",
-      "server_time",
-      "idvisit",
-      "idaction_url"
-    )
+class TransactionBuilder(url:String,database:String,user:String,password:String) extends BaseBuilder(url,database,user,password) {
     
   /**
    * This method retrieves selected fields from the piwi_log_conversion_item table, filtered
@@ -105,13 +39,7 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
    */        
   def fromLogConversion(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
 
-    val fields = LOG_FIELDS
-    /*
-     * Access to the log_conversion table is restricted to a time window,
-     * specified by a start and end date of format yyyy-mm-dd
-     */
-    val query = sql_logConversion.replace("$1",startdate).replace("$2",enddate)   
-    val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+    val rows = readLogConversion(sc,idsite,startdate,enddate) 
   
     /*
      * Restrict to conversion that refer to ecommerce orders (idgoal = 0)
@@ -154,16 +82,8 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
    * This output may directly be used to retrieve top K association rules
    */
   def fromLogConversionItem(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
-    /*
-     * Configured list of database fields to be taken into account
-     * with this query
-     */
-    val fields = LOG_ITEM_FIELDS  
-    /*
-     * Assign start & endtime to query statement
-     */  
-    val query = sql_logConversionItem.replace("$1",startdate).replace("$2",enddate)    
-    val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+
+    val rows = readLogConversionItem(sc,idsite,startdate,enddate)   
     
     /*
      * Restrict to those items that are NOT deleted from the respective order
@@ -214,14 +134,7 @@ class TransactionBuilder(url:String,database:String,user:String,password:String)
   
   def fromLogLinkVisitAction(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
     
-    val fields = LOG_LINK_VISIT_ACTION_FIELDS
-    /*
-     * Access to the log_conversion table is restricted to a time window,
-     * specified by a start and end date of format yyyy-mm-dd
-     */
-    val query = sql_logLinkVisitAction.replace("$1",startdate).replace("$2",enddate)   
-    val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
-
+    val rows = readLogLinkVisitAction(sc,idsite,startdate,enddate)  
     val items = rows.map(row => {
       
       val idsite  = row("idsite").asInstanceOf[Long]

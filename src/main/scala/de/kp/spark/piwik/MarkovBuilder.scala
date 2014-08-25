@@ -20,8 +20,8 @@ package de.kp.spark.piwik
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-
 import scala.collection.mutable.HashMap
+import de.kp.spark.piwik.builder.TransactionBuilder
 
 private case class Pair(ant:String,con:String)
 
