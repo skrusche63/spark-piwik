@@ -41,6 +41,17 @@ object MySQLConnector {
 
 ```
 
+#### Customer Segmentation
+
+Grouping customers or visitors of a business website by a common set of features such as time of engagement, location and others help marketers or publishers to reach a specific target audience.
+
+In this project KMeans clustering is applied to customer transaction data from the `piwik_log_conversion` table. The focus is on the geo location of the customers or visitors who made the respective transactions. For more information please look into the `ClusterBuilder`object of this project.
+
+From these data a heatmap can be drawn to visualize from which region of world most of the transactions come from. Most of the functionality to create heatmaps is covered by the objects `HeatUtil`and `PixelUtil` of this project.
+
+The image below shows a multi-colored heatmap from real data extracted from the `piwik_log_conversion`table. The colors red, yellow, green and blue indicate different heat ranges.
+
+
 #### Purchase Horizon
 
 Customers of products or service have a natural rhythm with respect to his or her purchase behavior. Regular visitors tend to visit an ecommerce store according to some temporal patterns that are inherent in their purchase history.
