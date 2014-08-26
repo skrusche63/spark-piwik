@@ -1,4 +1,4 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.markov
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -20,6 +20,7 @@ package de.kp.spark.piwik
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+
 import de.kp.spark.piwik.builder.TransactionBuilder
 
 object MarkovPredictor extends MarkovBase {
@@ -30,10 +31,7 @@ object MarkovPredictor extends MarkovBase {
     
     model = sc.textFile(input).map(line => {
 
-      val parts = line.split("|")
-      
-      val cid  = parts(0)
-      val data = parts(1)
+      val Array(cid,data) = line.split("|")
       
       /* Setup transition matrix from pair support */  	
 	  val matrix = new TransitionMatrix(STATE_DEFS.length, STATE_DEFS.length)
@@ -76,7 +74,7 @@ object MarkovPredictor extends MarkovBase {
      * Group all transactions by user, then sort by timestamp and create 
      * a list of timely order states from these data
      */
-    val predictions = prepare(sc,dataset).groupBy(_._1).map(valu => {
+    val predictions = prepare(dataset).groupBy(_._1).map(valu => {
       
       val data = valu._2.toList.sortBy(_._2)
       

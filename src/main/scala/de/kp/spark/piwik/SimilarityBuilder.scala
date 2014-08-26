@@ -20,8 +20,8 @@ package de.kp.spark.piwik
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-
 import de.kp.spark.fsm.sim.SMeasure
+import de.kp.spark.piwik.markov.DoubleMatrix
 
 object SimilarityBuilder {
 

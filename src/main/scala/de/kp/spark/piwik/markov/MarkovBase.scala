@@ -1,4 +1,4 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.markov
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -18,10 +18,11 @@ package de.kp.spark.piwik
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.ArrayBuffer
+
+import de.kp.spark.piwik.Configuration
 
 class MarkovBase extends Serializable {
 
@@ -51,7 +52,7 @@ class MarkovBase extends Serializable {
   protected val EQUAL_AMOUNT_HORIZON = settings("markov.equal.amount.horizon").toDouble
   protected val LARGE_AMOUNT_HORIZON = settings("markov.large.amount.horizon").toDouble
   
-  protected def prepare(sc:SparkContext,dataset:RDD[String]):RDD[(String,Long,Float)] = {
+  protected def prepare(dataset:RDD[String]):RDD[(String,Long,Float)] = {
     
     dataset.map(line => {
      

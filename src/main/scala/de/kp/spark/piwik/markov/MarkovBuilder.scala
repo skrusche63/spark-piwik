@@ -1,4 +1,4 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.markov
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -20,7 +20,9 @@ package de.kp.spark.piwik
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+
 import scala.collection.mutable.HashMap
+
 import de.kp.spark.piwik.builder.TransactionBuilder
 
 private case class Pair(ant:String,con:String)
@@ -67,7 +69,7 @@ object MarkovBuilder extends MarkovBase {
      * a list of timely order states from these data; finally, filter the 
      * result to remove all transactions that are described by a single state
      */
-    val states = prepare(sc,dataset).groupBy(_._1).map(
+    val states = prepare(dataset).groupBy(_._1).map(
       valu => (valu._1, createState(valu._2.toList.sortBy(_._2)))
     ).filter(valu => valu._2.length >= 2)
     

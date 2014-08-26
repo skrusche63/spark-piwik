@@ -1,4 +1,4 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.markov
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project

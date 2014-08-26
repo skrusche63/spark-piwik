@@ -1,4 +1,4 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.markov
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -19,6 +19,7 @@ package de.kp.spark.piwik
 */
 
 import scala.collection.mutable.ArrayBuffer
+import scala.Array.canBuildFrom
 
 class DoubleMatrix(numRow:Int,numCol:Int) {
 
