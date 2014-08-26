@@ -51,6 +51,8 @@ From these data a heatmap can be drawn to visualize from which region of world m
 
 The image below shows a multi-colored heatmap from real data extracted from the `piwik_log_conversion`table. The colors red, yellow, green and blue indicate different heat ranges.
 
+![Heatmap from Piwik Data](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/heatmap.png)
+
 
 #### Purchase Horizon
 
