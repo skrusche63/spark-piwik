@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Spark-piwik : An integration of Piwik Analytics with Scala and Apache Spark">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Spark-piwik</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/skrusche63/spark-piwik">View on GitHub</a>
+
+          <h1 id="project_title">Spark-piwik</h1>
+          <h2 id="project_tagline">An integration of Piwik Analytics with Scala and Apache Spark</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/skrusche63/spark-piwik/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/skrusche63/spark-piwik/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><img src="https://raw.github.com/skrusche63/spark-elastic/master/images/dr-kruscheundpartner.png" alt="Dr.Krusche &amp; Partner PartG"></p>
+
+<h2>
+<a name="piwik-web-analytics-meets-apache-spark" class="anchor" href="#piwik-web-analytics-meets-apache-spark"><span class="octicon octicon-link"></span></a>Piwik Web Analytics meets Apache Spark</h2>
+
+<blockquote>
+<p>Transform customer engagement data from Piwik Analytics into actionable business insights.</p>
+</blockquote>
+
+<p>In this project, we illustrate that Apache Spark not only is a fast and general engine for large-scale data processing, but also an appropriate means to integrate existing data sources and make their data 
+applicable by sophisticated machine learning, mining and prediction algorithms. As a specific data source, we selected <a href="http://piwik.org/">Piwik Analytics</a>, which is a widely used open source platform for 
+web analytics, and, an appropriate starting point for market basket analysis, user behavior analytics and more.</p>
+
+<p>From <a href="http://piwik.org/">piwik.org</a></p>
+
+<blockquote>
+<p>Piwik is the leading open source web analytics platform that gives you valuable insights into your website’s visitors, your marketing campaigns and much more, so you can optimize your strategy and online experience of your visitors.</p>
+</blockquote>
+
+<p>Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from the Apache eco system enables to evaluate customer engagement data from Piwik with Association Rule &amp; Frequent Sequence Mining, Context-Aware Recommendations, Markov Models and more to gain insights into customer engagement data far beyond traditional web analytics.</p>
+
+<p><img src="https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/Apache-Spark-and-Piwik.png" alt="Apache Spark and Piwik Analytics"></p>
+
+<h3>
+<a name="historical-engagement-data" class="anchor" href="#historical-engagement-data"><span class="octicon octicon-link"></span></a>Historical Engagement Data</h3>
+
+<blockquote>
+<p>Integration is based on Piwik's MySQL database.</p>
+</blockquote>
+
+<p>The few lines of Scale code below show how to access customer engagement data persisted in Piwik's MySQL database. The connector requires the respective database location, name and user credentials. </p>
+
+<p>Customer engagement data are retrieved by specifying the unique identifier <code>idsite</code> of a certain website supported by Piwik, and a specific query statement <code>query</code>.</p>
+
+<pre><code>object MySQLConnector {
+
+  private val MYSQL_DRIVER   = "com.mysql.jdbc.Driver"
+  private val NUM_PARTITIONS = 1
+
+  def readTable(sc:SparkContext,url:String,database:String,user:String,password:String,idsite:Int,query:String,fields:List[String]):RDD[Map[String,Any]] = {
+
+    val result = new JdbcRDD(sc,() =&gt; getConnection(url,database,user,password),
+      query,idsite,idsite,NUM_PARTITIONS,
+      (rs:ResultSet) =&gt; getRow(rs,fields)
+    ).cache()
+
+    result
+
+  }
+
+</code></pre>
+
+<h4>
+<a name="customer-segmentation" class="anchor" href="#customer-segmentation"><span class="octicon octicon-link"></span></a>Customer Segmentation</h4>
+
+<p>Grouping customers or visitors of a business website by a common set of features such as time of engagement, location and others help marketers or publishers to reach a specific target audience.</p>
+
+<p>In this project KMeans clustering is applied to customer transaction data from the <code>piwik_log_conversion</code> table. The focus is on the geo location of the customers or visitors who made the respective transactions. For more information please look into the <code>ClusterBuilder</code>object of this project.</p>
+
+<p>From these data a heatmap can be drawn to visualize from which region of world most of the transactions come from. Most of the functionality to create heatmaps is covered by the objects <code>HeatUtil</code>and <code>PixelUtil</code> of this project.</p>
+
+<p>The image below shows a multi-colored heatmap from real data extracted from the <code>piwik_log_conversion</code>table. The colors red, yellow, green and blue indicate different heat ranges.</p>
+
+<p><img src="https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/heatmap.png" alt="Heatmap from Piwik Data"></p>
+
+<p>Segmenting customers into specific target groups is not restricted their geo location. Time of the day, product or service categories, total revenue, and other parameters may directly be used to group customers by their purchase behavior.</p>
+
+<h4>
+<a name="purchase-horizon" class="anchor" href="#purchase-horizon"><span class="octicon octicon-link"></span></a>Purchase Horizon</h4>
+
+<p>Customers of products or service have a natural rhythm with respect to his or her purchase behavior. Regular visitors tend to visit an ecommerce store according to some temporal patterns that are inherent in their purchase history.</p>
+
+<p>Email marketing or any other marketing campaign leads to better results if it will be aligned with these temporal patterns of the customers. This means that a marketing campaign that will go out at the right time for the right customer is obviously more effective than a campaign that does not take the customer's rhythm into account.</p>
+
+<p>Predicting the right purchase horizon for each customer requires to build a personalized predictive model from the 
+customer's historical engagement data. Once this model is available, it is easy to predict when a certain customer is likely to make the next purchase and how much he or she is likely to spend.</p>
+
+<p>Optimizing email marketing is just one use case for predictive models. As Piwik Analytics tracks the ecommerce items being purchased with each order or transaction, the predicted purchase horizon may also be combined with Association Rule Mining (see below) to recommend products or services for time delayed cross-selling.</p>
+
+<p>In this project, we use personalized <a href="http://www.cs.sjsu.edu/faculty/stamp/RUA/HMM.pdf">Markov Models</a> to predict 
+when a customer is likely to make the next purchase.</p>
+
+<p>The idea behind this approach is to aggregate customer transaction data into discrete well-defined states. A timely ordered list of customer transaction may then be interpreted as a sequence of states, where each pair of subsequent states is accompanied by a state transition probability.</p>
+
+<p>With this transition probability in mind, it is no magic to compute the next probable state.</p>
+
+<p>In this project, we focus on <code>server_time</code> and <code>revenue_subtotal</code> from Piwik's <code>piwik_log_conversion</code> table, and represent a state by a two letter symbol:</p>
+
+<table>
+<thead><tr>
+<th>Time since last transaction</th>
+<th>Revenue compared to last transaction</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>S: Small</td>
+<td>L: Significantly less</td>
+</tr>
+<tr>
+<td>M: Medium</td>
+<td>E: More or less equal</td>
+</tr>
+<tr>
+<td>L: Large</td>
+<td>G: Significantly greater</td>
+</tr>
+</tbody>
+</table><p>Transactions are then described as sequences of states:</p>
+
+<pre><code>idsite|idvisitor|state state state ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|SG SL SG 
+1|b65ce95de5c8e7ea|SL SG LL SG
+1|b65ce95de5c8e7ea|LL SG MG LL
+...
+
+</code></pre>
+
+<p>From this representation of customer transactions, we count the frequency of subsequent state pairs, i.e. <code>(SG,SL)</code> or <code>(LL,SG)</code>, normalize and scale these frequencies to finally end up with state transition probabilities.</p>
+
+<p>The functionality described above is covered by the <code>MarkovBuilder</code>, that is also responsible for serializing and persisting the derived personalized predictive models.</p>
+
+<p>Finally, the `MarkovPredictor is responsible for predicting the next likely time and amount of transaction, using the personalized Markov Models as well as the last transactions of a certain customer. </p>
+
+<h4>
+<a name="customer-loyalty" class="anchor" href="#customer-loyalty"><span class="octicon octicon-link"></span></a>Customer Loyalty</h4>
+
+<p>The customer's engagement with a business is reflected by a wide range of events, such as e-commerce orders (or transactions), service calls, social media comments and more. All these events are indicative of the customer's loyalty to a certain business.</p>
+
+<p>Loyalty is usually defined as the strength of the relationship between a customer and a certain business. A higher degree of loyalty results in more purchase orders at a higher frequency.</p>
+
+<p>Customer loyalty is an important parameter for almost any kind of business, and can e.g. be used to measure the effectiveness of marketing campaigns. Following a campaign, the loyalty curve can be analyzed for a certain period of time to see if there is any significant impact on customers loyalty.</p>
+
+<p>Loyalty, however, can not be directly observer and measured. It is an internal customer state, that must be inferred adn predicted from customer engagement events.</p>
+
+<blockquote>
+<p>Customer Loyalty is a highly valuable business insight derived from customer engagement data using <strong>Predictive Analytics</strong>.</p>
+</blockquote>
+
+<p>We suggest to predict a sequence of (hidden) customer loyalty states from a sequence of observed customer engagement data by using a <a href="http://en.wikipedia.org/wiki/Hidden_Markov_model">Hidden Markov Model</a>. Identifying customers with a downward loyalty curve with such analysis can directly trigger proactive actions to resurrect the relationships of these customers.</p>
+
+<p>In the following, we make use of the functionality of the <a href="https://github.com/skrusche63/scala-hmm">Spark-HMM</a> project.</p>
+
+<p><em>To be continued</em></p>
+
+<h4>
+<a name="cross-selling-and-more" class="anchor" href="#cross-selling-and-more"><span class="octicon octicon-link"></span></a>Cross-Selling and more</h4>
+
+<p>Association rule mining is a wide-spread method to discover interesting relations between items in large-scale databases. These relations 
+are specified as so called <em>association rules</em>. A very popular application area for association rules is the detection of regularities between 
+products in large-scale customer engagement data recorded by ecommerce websites or point-of-sale systems in supermarkets.</p>
+
+<p>For example, the rule [onions, potatoes] -&gt; [burger] indicates that if a customer buys onions and potatoes together, he or she is likely to also buy 
+hamburger meat. Such information can be used as the basis for decisions about marketing activities such as, e.g., promotional pricing or product placements. </p>
+
+<p>In this project, we retrieve historical engagement data from the <code>piwik_log_conversion_item</code> table with Spark and transform these data into an appropriate transaction format. To this end, all ecommerce items that refer to the same ecommerce order are aggregated into single line.</p>
+
+<p><strong>Note</strong>: The retrieved ecommerce items are filtered by those items that have not been deleted from a certain order. </p>
+
+<p>The output of this transformation has the format specified here,</p>
+
+<pre><code>idsite|idvisitor|idorder|timestamp|item item item ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|A10000124|1407986582000|1 2 4 5 
+1|b65ce95de5c8e7ea|A10000123|1407931845000|2 3 5
+1|b65ce95de5c8e7ea|A10000125|1407986689000|1 2 4 5
+...
+
+</code></pre>
+
+<p>and is done by the following lines of Scala code:</p>
+
+<pre><code>def fromLogConversionItem(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[String] = {
+
+  val fields = LOG_ITEM_FIELDS  
+
+  val query = sql_logConversionItem.replace("$1",startdate).replace("$2",enddate)    
+  val rows = MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+
+  val items = rows.filter(row =&gt; (isDeleted(row) == false)).map(row =&gt; {
+
+    val idsite  = row("idsite").asInstanceOf[Long]
+    val idvisitor = row("idvisitor").asInstanceOf[Array[Byte]]     
+
+    val user = new java.math.BigInteger(1, idvisitor).toString(16)
+
+    val server_time = row("server_time").asInstanceOf[java.sql.Timestamp]
+    val timestamp = server_time.getTime()
+
+    val idorder = row("idorder").asInstanceOf[String]      
+    val idaction_sku = row("idaction_sku").asInstanceOf[Long]
+
+    (idsite,user,idorder,idaction_sku,timestamp)
+
+  })
+
+  items.groupBy(_._3).map(valu =&gt; {
+
+    val data = valu._2.toList.sortBy(_._5)      
+    val output = ArrayBuffer.empty[String]
+
+    val (idsite,user,idorder,idaction_sku,timestamp) = data.head
+    output += idaction_sku.toString
+
+    for (record &lt;- data.tail) {
+      output += record._4.toString
+    }
+
+    "" + idsite + "|" + user + "|" + idorder + "|" + timestamp + "|" + output.mkString(" ")
+
+  })
+
+}
+</code></pre>
+
+<p>Discovering the Top K Association Rules from the transactions above, does not require any reference to certain website (<code>idsite</code>), visitor (<code>idvisitor</code>) or order (<code>idorder</code>). It is sufficient to
+specify all items of a transaction in a single line, and assign a unique line number (<code>lno</code>):</p>
+
+<pre><code>lno|item item item ...
+----------------------
+
+0,4 232 141 6
+1,169 129 16
+2,16 6 175 126
+3,16 124 141 175
+4,16 124 175
+5,232 4 238
+...
+</code></pre>
+
+<p>The code below describes the <code>RuleBuilder</code> class that is responsible for discovering the association rules between the ecommerce items extracted from Piwik' database. </p>
+
+<p><strong>Note</strong>: The <code>RuleBuilder</code>depends on the code base of the <a href="https://github.com/skrusche63/spark-arules">Spark-ARULES</a> project.</p>
+
+<pre><code>class RuleBuilder {
+
+  /**
+   * input = ["idsite|user|idorder|timestamp|items"]
+   */
+  def buildTopKRules(sc:SparkContext,dataset:RDD[String],k:Int=10,minconf:Double=0.8):String = {
+
+    /* Prepare dataset */
+    val transactions = prepare(sc,dataset)
+
+    /* Extract rules and convert into JSON */
+    val rules = TopK.extractRDDRules(sc,transactions,k,minconf)
+    TopK.rulesToJson(rules)
+
+  }
+
+  def prepare(sc:SparkContext,dataset:RDD[String]):RDD[(Int,Array[String])] = {
+
+    /* Reduce dataset to items and repartition to single partition */
+    val items = dataset.map(line =&gt; line.split("|")(4)).coalesce(1)
+
+    val index = sc.parallelize(Range.Long(0, items.count, 1),items.partitions.size)
+    val zip = items.zip(index) 
+
+    zip.map(valu =&gt; {
+
+      val (line,no) = valu
+      (no.toInt, line.split(" "))
+
+    })
+
+  }
+
+} 
+</code></pre>
+
+<p>The table describes the result of the Top K Association Rule Mining, where <code>k = 10</code>  and the confidence threshold is set to <code>minconf = 0.8</code>. For example, the first row of table indicates that if a customers buys the ecommerce items with the <code>idaction_sku</code> value of <code>4</code> and <code>232</code> together, then there is a likelihood of <code>90%</code> that he or she also buys the item with the identifier <code>141</code>: [4, 232] -&gt; [141].</p>
+
+<table>
+<thead><tr>
+<th>antecedent</th>
+<th>consequent</th>
+<th>support</th>
+<th>confidence</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>4, 232</td>
+<td>141</td>
+<td>35</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>169, 238</td>
+<td>110</td>
+<td>41</td>
+<td>0.84</td>
+</tr>
+<tr>
+<td>6, 232</td>
+<td>124</td>
+<td>39</td>
+<td>0.83</td>
+</tr>
+<tr>
+<td>129, 175</td>
+<td>141</td>
+<td>35</td>
+<td>0.83</td>
+</tr>
+<tr>
+<td>124, 132, 175</td>
+<td>141</td>
+<td>35</td>
+<td>0.83</td>
+</tr>
+<tr>
+<td>124, 126</td>
+<td>132</td>
+<td>37</td>
+<td>0.82</td>
+</tr>
+<tr>
+<td>175, 232</td>
+<td>124</td>
+<td>38</td>
+<td>0.81</td>
+</tr>
+<tr>
+<td>16, 124, 141</td>
+<td>132</td>
+<td>36</td>
+<td>0.80</td>
+</tr>
+<tr>
+<td>16, 232</td>
+<td>141</td>
+<td>37</td>
+<td>0.80</td>
+</tr>
+<tr>
+<td>16, 175</td>
+<td>141</td>
+<td>41</td>
+<td>0.80</td>
+</tr>
+</tbody>
+</table><p>From the association rules discovered it is no magic to support features such as</p>
+
+<blockquote>
+<p>Customers who bought product A also bought product B and / or C</p>
+</blockquote>
+
+<p>or even recommendations. The use case described above for applying Association Rule Mining focuses on a single predicate, i.e. <code>buys</code>, and the items evaluated are solely ecommerce items from a web store. The customer engagement data available from Piwik's database, however, offer the opportunity to evaluate higher dimensional predicates.</p>
+
+<p>From the <code>piwik_log_conversion</code> table, we may easily extract further predicates, such as customer <code>location</code>, item <code>quantity</code> and more. Transforming these predicates into categorical variables (having a discrete set of possible values), such as <code>city = berlin</code> or <code>daytime = afternoon</code>, enables to assign additional item identifiers.</p>
+
+<p>Taking those additional predicates into account leads to more detailed association rules:</p>
+
+<blockquote>
+<p>daytime("afternoon") AND location("berlin") AND buys("onions") AND buys("tomatoes") -&gt; buys("burger") </p>
+</blockquote>
+
+<p>We have discussed association rules so far with respect to ecommerce events. The technique may - of course -  also be applied to pageview events. In this scenario, a transaction specifies a web session or visit, and an item characterizes a certain web page (url). </p>
+
+<p>Instead of retrieving customer engagement data from the <code>piwik_log_conversion_item</code> table, transactions are derived from the <code>piwik_log_link_visit_action</code> table.</p>
+
+<h4>
+<a name="customer-similarity" class="anchor" href="#customer-similarity"><span class="octicon octicon-link"></span></a>Customer Similarity</h4>
+
+<p>Customer engagement data from Piwik's <code>piwik_log_conversion_item</code> table is easily transformed into sequential data, where each customer order or transaction is aggregated into an itemset, and all those itemsets in a certain time window form a sequence of itemsets.</p>
+
+<p>These sequences describe the temporally customer purchase behavior. This is the starting point for discovering and grouping users with similar purchase behavior.</p>
+
+<p>In this project, we have published a <code>SimilarityBuilder</code>, which computes the purchase sequence similarities within a sequence database, and then determines the K most similar customers or visitors with respect to a selected customer.</p>
+
+<p>The <code>SimilarityBuilder</code> starts with engagement data from the <code>piwik_log_conversion_item</code> table transformed into the following format (see above):</p>
+
+<pre><code>idsite|idvisitor|idorder|timestamp|item item item ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|A10000124|1407986582000|1 2 4 5 
+1|b65ce95de5c8e7ea|A10000123|1407931845000|2 3 5
+1|b65ce95de5c8e7ea|A10000125|1407986689000|1 2 4 5
+...
+</code></pre>
+
+<p>From these data, it is only a few lines of Scala code to calculate a similarity matrix, which specifies the similarity of users <code>(i,j)</code> with respect to their purchase behavior:</p>
+
+<pre><code>def build(sc:SparkContext,source:RDD[String],output:String) {
+
+  val dataset = source.map(line =&gt; {
+
+    val Array(idsite,user,idorder,timestamp,items) = line.split("|")
+
+    val cid = idsite + "|" + user
+    (cid,idorder,timestamp.toLong,items)
+
+  }).groupBy(_._2)
+
+  val sequences = dataset.map(valu =&gt; {
+
+    val records = valu._2.toList.sortBy(_._3)
+
+    val cid = records.head._1
+    val sequence = records.map(_._4.split(" ").map(_.toInt)).toArray
+
+    (cid,sequence)
+
+  })
+
+  matrix = computeSimilarity(sequences)
+
+}
+
+</code></pre>
+
+<hr><h3>
+<a name="real-time-engagement-data" class="anchor" href="#real-time-engagement-data"><span class="octicon octicon-link"></span></a>Real-time Engagement Data</h3>
+
+<blockquote>
+<p>Integration is based on Spray, Apache Kafka and Piwik's tracking library (JavaScript).</p>
+</blockquote>
+
+<p>Historical customer engagement data are an appropriate means to discover valuable customer insights, and also to build predictive models, that may then be applied to customer engagement in real-time. </p>
+
+<p>In this project, we show how customer events sent by the Piwik tracking library (Javascript) </p>
+
+<ul>
+<li>may directly be received by a reactive REST server, </li>
+<li>delegated to a large-scale distributed message system, </li>
+<li>consumed by Apache Spark and </li>
+<li>finally evaluated by applying predictive models.</li>
+</ul><p><em>To be continued</em></p>
+
+<h4>
+<a name="real-time-outlier-detection" class="anchor" href="#real-time-outlier-detection"><span class="octicon octicon-link"></span></a>Real-time Outlier Detection</h4>
+
+<p><em>To be done</em></p>
+
+<hr><h3>
+<a name="technology-stack" class="anchor" href="#technology-stack"><span class="octicon octicon-link"></span></a>Technology Stack</h3>
+
+<ul>
+<li>Akka</li>
+<li>Apache Kafka</li>
+<li>Apache Spark</li>
+<li>Spray</li>
+<li>MySQL</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Spark-piwik maintained by <a href="https://github.com/skrusche63">skrusche63</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
