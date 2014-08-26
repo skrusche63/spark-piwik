@@ -53,6 +53,7 @@ The image below shows a multi-colored heatmap from real data extracted from the 
 
 ![Heatmap from Piwik Data](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/heatmap.png)
 
+Segmenting customers into specific target groups is not restricted their geo location. Time of the day, product or service categories, total revenue, and other parameters may directly be used to group customers by their purchase behavior.
 
 #### Purchase Horizon
 
