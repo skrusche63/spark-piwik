@@ -55,7 +55,7 @@ The image below shows a multi-colored heatmap from real data extracted from the 
 
 Segmenting customers into specific target groups is not restricted their geo location. Time of the day, product or service categories, total revenue, and other parameters may directly be used to group customers by their purchase behavior.
 
-#### Purchase Horizon
+#### Purchase Horizon Prediction
 
 Customers of products or service have a natural rhythm with respect to his or her purchase behavior. Regular visitors tend to visit an ecommerce store according to some temporal patterns that are inherent in their purchase history.
 
@@ -99,7 +99,7 @@ The functionality described above is covered by the `MarkovBuilder`, that is als
 Finally, the `MarkovPredictor is responsible for predicting the next likely time and amount of transaction, using the personalized Markov Models as well as the last transactions of a certain customer. 
 
 
-#### Customer Loyalty
+#### Customer Loyalty Prediction
 
 The customer's engagement with a business is reflected by a wide range of events, such as e-commerce orders (or transactions), service calls, social media comments and more. All these events are indicative of the customer's loyalty to a certain business.
 
@@ -114,6 +114,10 @@ Loyalty, however, can not be directly observer and measured. It is an internal c
 We suggest to predict a sequence of (hidden) customer loyalty states from a sequence of observed customer engagement data by using a [Hidden Markov Model](http://en.wikipedia.org/wiki/Hidden_Markov_model). Identifying customers with a downward loyalty curve with such analysis can directly trigger proactive actions to resurrect the relationships of these customers.
 
 In the following, we make use of the functionality of the [Spark-HMM](https://github.com/skrusche63/scala-hmm) project.
+
+*To be continued*
+
+#### Customer Churn Prediction
 
 *To be continued*
 
