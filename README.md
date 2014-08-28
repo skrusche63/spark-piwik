@@ -1,6 +1,6 @@
 ![Dr.Krusche & Partner PartG](https://raw.github.com/skrusche63/spark-elastic/master/images/dr-kruscheundpartner.png)
 
-## Piwik Web Analytics meets Apache Spark 
+## Beyond Piwik Web Analytics with Apache Spark 
 
 > Transform customer engagement data from Piwik Analytics into actionable business insights.
 
