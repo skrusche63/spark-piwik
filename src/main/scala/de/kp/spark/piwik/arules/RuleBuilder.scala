@@ -34,7 +34,7 @@ class RuleBuilder {
     val transactions = prepare(sc,dataset)
     
     /* Extract rules and convert into JSON */
-    val rules = TopK.extractRDDRules(sc,transactions,k,minconf)
+    val rules = TopK.extractRules(transactions,k,minconf)
     TopK.rulesToJson(rules)
      
   }

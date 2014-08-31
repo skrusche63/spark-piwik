@@ -37,7 +37,7 @@ object HeatMapApp extends SparkApp {
     val dim = new Dimension(widthstr.toInt,heightstr.toInt)
     val pos = new Positions(latstr.toInt,lonstr.toInt)
     
-    val sc = createLocalCtx("HeatMapApp")    
+    val sc = createCtxLocal("HeatMapApp")    
 
     val pixels = PixelUtil.buildPixels(sc,geodata,10,100,dim,pos)   
     buildImage(worldimg,heatimg,pixels,dim)
