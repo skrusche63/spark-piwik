@@ -39,10 +39,15 @@ import de.kp.spark.piwik.SparkApp
 import java.util.UUID
 
 class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
-   
+  
+  /**
+   * This clickstream evaluation actually concentrates on exact computation;
+   * an alternative may to use estimators, e.g. for unique pages cardinality,
+   * frequent pages or visitors and more
+   */
   def run() {
 
-    val sc = createCtxLocal("PageViewApp")    
+    val sc = createCtxLocal("ClickStreamApp")    
     /*
      * Batch duration is the time duration spark streaming uses to collect spark RDDs; 
      * with a duration of 5 seconds, for example spark streaming collects RDDs every 5 
