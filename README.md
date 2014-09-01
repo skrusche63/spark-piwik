@@ -115,14 +115,30 @@ We suggest to predict a sequence of (hidden) customer loyalty states from a sequ
 
 Customer Loyalty Prediction is based on the functionality of the [Spark-HMM](https://github.com/skrusche63/scala-hmm) project.
 
-As in predicting the Purchase Horizon, the time elapsed since the last transaction, `small(S), medium(M) and large(L)`, and the amount spent compared to the last one is used: `less(L), about same(S) and more(M)`. Again, each customer transaction is represented by a certain state from a set of nine states. E.g. the state `SM` describes a transaction, where the time elapsed since the last transaction is small and the customer spent more than last time.
+As in predicting the Purchase Horizon, the folowing states are used to aggregate a customer transaction: the time elapsed since the last transaction, `small(S), medium(M) and large(L)`, and the amount spent compared to the last one, `less(L), about same(S) and more(M)`. 
+
+Each customer transaction is represented by a certain state, e.g. the state `SM` describes a transaction, where the time elapsed since the last transaction is small and the customer spent more than last time.
 
 Customer Loyalty is specified by three additional states, representing three different levels of loyalty: `low(L), normal(N), high(H)`. A Hidden Markov Model combines the observed states from customer transactions with these hidden states and predicts a certain Loyalty state for each transaction.
 
-A Hidden Markov Model therefore transforms a set of customer transactions into a sequence of customer loyalty states.
+> A Hidden Markov Model transforms a set of customer transactions into a sequence of customer loyalty states.
 
+Applying the Hidden Markov Model to customer transactions finally results in the following loyalty sequences:
+```
+idsite|idvisitor|state state state ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|H H H H H L N L N N 
+1|b62de95da5c8e1aa|L L L N L L L H H N H N N
+...
+
+```
+
+The customer loyalty sequence may then be used as a starting point to predict, whether a certain customer intends to skip the relation to a certain business. 
 
 #### Customer Churn Prediction
+
+Customer churn refers to the situation when a customer ceases his or her relationship with a company. Online businesses typically treat a customer as churned once a particular amount of time has elapsed since the customer's last interaction with the site or service.
 
 *To be continued*
 
