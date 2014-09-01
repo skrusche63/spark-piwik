@@ -121,6 +121,16 @@ Customer Loyalty is specified by three additional states, representing three dif
 
 A Hidden Markov Model therefore transforms a set of customer transactions into a sequence of customer loyalty states.
 
+Applying the Hidden Markov Model to customer transactions finally results in the following loyalty sequences:
+```
+idsite|idvisitor|state state state ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|H H H H H L N L N N 
+1|b62de95da5c8e1aa|L L L N L L L H H N H N N
+...
+
+```
 
 #### Customer Churn Prediction
 
