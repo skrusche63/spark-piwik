@@ -113,7 +113,14 @@ Loyalty, however, can not be directly observer and measured. It is an internal c
 
 We suggest to predict a sequence of (hidden) customer loyalty states from a sequence of observed customer engagement data by using a [Hidden Markov Model](http://en.wikipedia.org/wiki/Hidden_Markov_model). Identifying customers with a downward loyalty curve with such analysis can directly trigger proactive actions to resurrect the relationships of these customers.
 
-In the following, we make use of the functionality of the [Spark-HMM](https://github.com/skrusche63/scala-hmm) project.
+Customer Loyalty Prediction is based on the functionality of the [Spark-HMM](https://github.com/skrusche63/scala-hmm) project.
+
+As in predicting the Purchase Horizon, the time elapsed since the last transaction, `small(S), medium(M) and large(L)`, and the amount spent compared to the last one is used: `less(L), about same(S) and more(M)`. Again, each customer transaction is represented by a certain state from a set of nine states. E.g. the state `SM` describes a transaction, where the time elapsed since the last transaction is small and the customer spent more than last time.
+
+Customer Loyalty is specified by three additional states, representing three different levels of loyalty: `low(L), normal(N), high(H)`. A Hidden Markov Model combines the observed states from customer transactions with these hidden states and predicts a certain Loyalty state for each transaction.
+
+A Hidden Markov Model transforms a set of customer transactions into a sequence of customer loyalty states.
+
 
 *To be continued*
 
