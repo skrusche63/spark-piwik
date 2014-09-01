@@ -23,11 +23,11 @@ import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.HashMap
 
-import de.kp.spark.piwik.builder.TransactionBuilder
+import de.kp.spark.piwik.builder.{StateBuilder,TransactionBuilder}
 
 private case class Pair(ant:String,con:String)
 
-object MarkovBuilder extends MarkovBase {
+object MarkovBuilder extends StateBuilder {
 
   /**
    * Build and persist Markov Model for a certain idsite and a period of time 

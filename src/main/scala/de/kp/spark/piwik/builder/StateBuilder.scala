@@ -1,4 +1,4 @@
-package de.kp.spark.piwik.markov
+package de.kp.spark.piwik.builder
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -24,7 +24,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import de.kp.spark.piwik.Configuration
 
-class MarkovBase extends Serializable {
+class StateBuilder extends Serializable {
 
   protected val DAY = 24 * 60 * 60 * 1000 // day in milliseconds
 

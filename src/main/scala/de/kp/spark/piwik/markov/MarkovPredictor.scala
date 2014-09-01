@@ -21,9 +21,9 @@ package de.kp.spark.piwik.markov
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-import de.kp.spark.piwik.builder.TransactionBuilder
+import de.kp.spark.piwik.builder.{StateBuilder,TransactionBuilder}
 
-object MarkovPredictor extends MarkovBase {
+object MarkovPredictor extends StateBuilder {
   
   private var model:Map[String,TransitionMatrix] = null
   

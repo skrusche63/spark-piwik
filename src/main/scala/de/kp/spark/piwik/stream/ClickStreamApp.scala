@@ -82,6 +82,8 @@ class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
      */
     val pagecounts = pageviews.map(view => view.pageurl).countByValue()
 
+    pagecounts.foreachRDD(rdd => println(rdd.collect().toList))
+    
     /* 
      * Return the number of visitors in the last 15 seconds and repeat this action 
      * every 2 seconds
