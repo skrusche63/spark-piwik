@@ -138,6 +138,8 @@ The customer loyalty sequence may then be used as a starting point to predict, w
 
 #### Customer Churn Prediction
 
+Customer churn refers to the situation when a customer ceases his or her relationship with a company. Online businesses typically treat a customer as churned once a particular amount of time has elapsed since the customer's last interaction with the site or service.
+
 *To be continued*
 
 #### Cross-Selling and more 
