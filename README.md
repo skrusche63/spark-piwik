@@ -119,10 +119,8 @@ As in predicting the Purchase Horizon, the time elapsed since the last transacti
 
 Customer Loyalty is specified by three additional states, representing three different levels of loyalty: `low(L), normal(N), high(H)`. A Hidden Markov Model combines the observed states from customer transactions with these hidden states and predicts a certain Loyalty state for each transaction.
 
-A Hidden Markov Model transforms a set of customer transactions into a sequence of customer loyalty states.
+A Hidden Markov Model therefore transforms a set of customer transactions into a sequence of customer loyalty states.
 
-
-*To be continued*
 
 #### Customer Churn Prediction
 
