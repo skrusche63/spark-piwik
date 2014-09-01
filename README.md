@@ -134,6 +134,8 @@ idsite|idvisitor|state state state ...
 
 ```
 
+The customer loyalty sequence may then be used as a starting point to predict, whether a certain customer intends to skip the relation to a certain business. 
+
 #### Customer Churn Prediction
 
 *To be continued*
