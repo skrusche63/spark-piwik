@@ -55,6 +55,18 @@ web analytics, and, an appropriate starting point for market basket analysis, us
 <p><img src="https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/Apache-Spark-and-Piwik.png" alt="Apache Spark and Piwik Analytics"></p>
 
 <h3>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h3>
+
+<ul>
+<li><p>Customer Segmentation</p></li>
+<li><p>Customer Behavior Similarity</p></li>
+<li><p>Customer Churn Prediction</p></li>
+<li><p>Customer Loyalty Prediction</p></li>
+<li><p>Market Basket Analysis</p></li>
+<li><p>Purchase Horizon Prediction</p></li>
+</ul><p>and more.</p>
+
+<hr><h3>
 <a name="historical-engagement-data" class="anchor" href="#historical-engagement-data"><span class="octicon octicon-link"></span></a>Historical Engagement Data</h3>
 
 <blockquote>
@@ -173,12 +185,35 @@ when a customer is likely to make the next purchase.</p>
 
 <p>We suggest to predict a sequence of (hidden) customer loyalty states from a sequence of observed customer engagement data by using a <a href="http://en.wikipedia.org/wiki/Hidden_Markov_model">Hidden Markov Model</a>. Identifying customers with a downward loyalty curve with such analysis can directly trigger proactive actions to resurrect the relationships of these customers.</p>
 
-<p>In the following, we make use of the functionality of the <a href="https://github.com/skrusche63/scala-hmm">Spark-HMM</a> project.</p>
+<p>Customer Loyalty Prediction is based on the functionality of the <a href="https://github.com/skrusche63/scala-hmm">Spark-HMM</a> project.</p>
 
-<p><em>To be continued</em></p>
+<p>As in predicting the Purchase Horizon, the folowing states are used to aggregate a customer transaction: the time elapsed since the last transaction, <code>small(S), medium(M) and large(L)</code>, and the amount spent compared to the last one, <code>less(L), about same(S) and more(M)</code>. </p>
+
+<p>Each customer transaction is represented by a certain state, e.g. the state <code>SM</code> describes a transaction, where the time elapsed since the last transaction is small and the customer spent more than last time.</p>
+
+<p>Customer Loyalty is specified by three additional states, representing three different levels of loyalty: <code>low(L), normal(N), high(H)</code>. A Hidden Markov Model combines the observed states from customer transactions with these hidden states and predicts a certain Loyalty state for each transaction.</p>
+
+<blockquote>
+<p>A Hidden Markov Model transforms a set of customer transactions into a sequence of customer loyalty states.</p>
+</blockquote>
+
+<p>Applying the Hidden Markov Model to customer transactions finally results in the following loyalty sequences:</p>
+
+<pre><code>idsite|idvisitor|state state state ...
+-----------------------------------------------------
+
+1|b65ce95de5c8e7ea|H H H H H L N L N N 
+1|b62de95da5c8e1aa|L L L N L L L H H N H N N
+...
+
+</code></pre>
+
+<p>The customer loyalty sequence may then be used as a starting point to predict, whether a certain customer intends to skip the relation to a certain business. </p>
 
 <h4>
 <a name="customer-churn-prediction" class="anchor" href="#customer-churn-prediction"><span class="octicon octicon-link"></span></a>Customer Churn Prediction</h4>
+
+<p>Customer churn refers to the situation when a customer ceases his or her relationship with a company. Online businesses typically treat a customer as churned once a particular amount of time has elapsed since the customer's last interaction with the site or service.</p>
 
 <p><em>To be continued</em></p>
 
@@ -458,19 +493,16 @@ specify all items of a transaction in a single line, and assign a unique line nu
 
 <p>Historical customer engagement data are an appropriate means to discover valuable customer insights, and also to build predictive models, that may then be applied to customer engagement in real-time. </p>
 
-<p>In this project, we show how customer events sent by the Piwik tracking library (Javascript) </p>
-
-<ul>
-<li>may directly be received by a reactive REST server, </li>
-<li>delegated to a large-scale distributed message system, </li>
-<li>consumed by Apache Spark and </li>
-<li>finally evaluated by applying predictive models.</li>
-</ul><p><em>To be continued</em></p>
-
 <h4>
-<a name="real-time-outlier-detection" class="anchor" href="#real-time-outlier-detection"><span class="octicon octicon-link"></span></a>Real-time Outlier Detection</h4>
+<a name="real-time-clickstream-analysis" class="anchor" href="#real-time-clickstream-analysis"><span class="octicon octicon-link"></span></a>Real-time Clickstream Analysis</h4>
 
-<p><em>To be done</em></p>
+<p>Real-time Clickstream Analysis starts from customer interaction events sent by Piwik's tracking library. The endpoint for this library is a REST service, backed by <a href="http://spray.io/">Spray</a>, an open-source oolkit on top of Scala and Akka. </p>
+
+<p>Spray is actor-based, lightweight, and modular, and comes with a small, embedded and super-fast HTTP server that is a great alternative to servlet containers. It is fully asynchronous and can handle thousands of concurrent connections.</p>
+
+<p>Spray is used to delegate customer interaction events to Apache Kafka. Using the streaming support of Spark Streaming, these events are transformed into page views. These are analyzed in real-time to build e.g. page or visitor counts from streaming windows.</p>
+
+<p>This approach enables to look into an event stream in real-time, and, e.g. determines which pages have been clicked or how many visitors have visited a web site every 15 seconds.</p>
 
 <hr><h3>
 <a name="technology-stack" class="anchor" href="#technology-stack"><span class="octicon octicon-link"></span></a>Technology Stack</h3>
