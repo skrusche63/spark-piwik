@@ -358,7 +358,13 @@ Historical customer engagement data are an appropriate means to discover valuabl
 
 #### Real-time Clickstream Analysis
 
-Real-time Clickstream Analysis starts from customer interaction events sent by Piwik's tracking library. The endpoint for this library is a REST service, backed by [Spray](http://spray.io/), an open-source oolkit on top of Scala and Akka. Spray is actor-based, lightweight, and modular, and comes with a small, embedded and super-fast HTTP server that is a great alternative to servlet containers. It is fully asynchronous and can handle thousands of concurrent connections.
+Real-time Clickstream Analysis starts from customer interaction events sent by Piwik's tracking library. The endpoint for this library is a REST service, backed by [Spray](http://spray.io/), an open-source oolkit on top of Scala and Akka. 
+
+Spray is actor-based, lightweight, and modular, and comes with a small, embedded and super-fast HTTP server that is a great alternative to servlet containers. It is fully asynchronous and can handle thousands of concurrent connections.
+
+Spray is used to delegate customer interaction events to Apache Kafka. Using the streaming support of Spark Streaming, these events are transformed into page views. These are analyzed in real-time to build e.g. page or visitor counts from streaming windows.
+
+This approach enables to look into an event stream in real-time, and, e.g. determines which pages have been clicked or how many visitors have visited a web site every 15 seconds.
 
 ---
 
