@@ -15,6 +15,24 @@ Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from
 
 ![Apache Spark and Piwik Analytics](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/Apache-Spark-and-Piwik.png)
 
+### Features
+
+* Customer Segmentation
+
+* Customer Behavior Similarity
+
+* Customer Churn Prediction
+
+* Customer Loyalty Prediction
+
+* Market Basket Analysis
+
+* Purchase Horizon Prediction
+
+and more.
+
+---
+
 ### Historical Engagement Data
 
 > Integration is based on Piwik's MySQL database.
@@ -346,7 +364,6 @@ def build(sc:SparkContext,source:RDD[String],output:String) {
 }
 
 ```
-
 
 ---
 
