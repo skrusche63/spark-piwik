@@ -358,7 +358,7 @@ Historical customer engagement data are an appropriate means to discover valuabl
 
 #### Real-time Clickstream Analysis
 
-#### Real-time Outlier Detection
+Real-time Clickstream Analysis starts from customer interaction events sent by Piwik's tracking library. The endpoint for this library is a REST service, backed by [Spray](http://spray.io/), an open-source oolkit on top of Scala and Akka. Spray is actor-based, lightweight, and modular, and comes with a small, embedded and super-fast HTTP server that is a great alternative to servlet containers. It is fully asynchronous and can handle thousands of concurrent connections.
 
 ---
 
