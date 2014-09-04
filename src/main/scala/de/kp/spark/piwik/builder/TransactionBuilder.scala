@@ -27,7 +27,7 @@ import scala.collection.mutable.ArrayBuffer
  * The TransactionBuilder is the bridge between the visitor engagement data stored
  * in a MySQL database and more sophisticate mining & prediction techniques
  */
-class TransactionBuilder(url:String,database:String,user:String,password:String) extends BaseBuilder(url,database,user,password) {
+class TransactionBuilder extends BaseBuilder {
     
   /**
    * This method retrieves selected fields from the piwi_log_conversion_item table, filtered

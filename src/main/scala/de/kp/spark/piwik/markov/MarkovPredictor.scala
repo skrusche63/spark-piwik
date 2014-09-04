@@ -31,7 +31,7 @@ object MarkovPredictor extends StateBuilder {
     
     model = sc.textFile(input).map(line => {
 
-      val Array(cid,data) = line.split("|")
+      val Array(cid,data) = line.split("\\|")
       
       /* Setup transition matrix from pair support */  	
 	  val matrix = new TransitionMatrix(STATE_DEFS.length, STATE_DEFS.length)
@@ -52,14 +52,8 @@ object MarkovPredictor extends StateBuilder {
    * and from a set of customer transactions within a specific time window
    */
   def predict(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[(String,Long,Float)] = {
-    
-    val url = settings("mysql.url")
-    val database = settings("mysql.db")
-    
-    val user = settings("mysql.user")
-    val password = settings("mysql.password")
 
-    val tb = new TransactionBuilder(url,database,user,password)
+    val tb = new TransactionBuilder()
     val conversions = tb.fromLogConversion(sc, idsite, startdate, enddate)
 
     predict(sc,conversions)

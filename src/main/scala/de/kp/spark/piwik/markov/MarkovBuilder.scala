@@ -45,14 +45,8 @@ object MarkovBuilder extends StateBuilder {
   }
 
   def buildModel(sc:SparkContext,idsite:Int,startdate:String,enddate:String):RDD[(String,TransitionMatrix)] = {
-    
-    val url = settings("mysql.url")
-    val database = settings("mysql.db")
-    
-    val user = settings("mysql.user")
-    val password = settings("mysql.password")
 
-    val tb = new TransactionBuilder(url,database,user,password)
+    val tb = new TransactionBuilder()
     val conversions = tb.fromLogConversion(sc, idsite, startdate, enddate)
 
     buildModel(sc,conversions)

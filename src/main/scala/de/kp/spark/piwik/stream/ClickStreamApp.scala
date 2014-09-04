@@ -91,7 +91,7 @@ class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
     val window = Seconds(15)
     val interval = Seconds(2)
     
-    val visitorcounts = pageviews.window(window,interval).map(view => (view.visitor, 1)).groupByKey().map(v => (v._1,v._2.size))
+    val visitvisitorsorcounts = pageviews.window(window,interval).map(view => (view.visitor, 1)).groupByKey().map(v => (v._1,v._2.size))
 
     ssc.start()
     ssc.awaitTermination()    

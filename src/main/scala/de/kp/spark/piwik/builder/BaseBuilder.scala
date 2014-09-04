@@ -23,7 +23,7 @@ import org.apache.spark.rdd.RDD
 
 import de.kp.spark.piwik.MySQLConnector
 
-class BaseBuilder(url:String,database:String,user:String,password:String) extends Serializable {
+class BaseBuilder extends Serializable {
   /*
    * Table: piwik_log_conversion
    */
@@ -94,7 +94,7 @@ class BaseBuilder(url:String,database:String,user:String,password:String) extend
      * specified by a start and end date of format yyyy-mm-dd
      */
     val query = sql_logConversion.replace("$1",startdate).replace("$2",enddate)   
-    MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+    MySQLConnector.readTable(sc,idsite,query,fields)  
     
   }
 
@@ -108,7 +108,7 @@ class BaseBuilder(url:String,database:String,user:String,password:String) extend
      * Assign start & endtime to query statement
      */  
     val query = sql_logConversionItem.replace("$1",startdate).replace("$2",enddate)    
-    MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+    MySQLConnector.readTable(sc,idsite,query,fields)  
 
   }
   
@@ -120,7 +120,7 @@ class BaseBuilder(url:String,database:String,user:String,password:String) extend
      * specified by a start and end date of format yyyy-mm-dd
      */
     val query = sql_logLinkVisitAction.replace("$1",startdate).replace("$2",enddate)   
-    MySQLConnector.readTable(sc,url,database,user,password,idsite,query,fields)  
+    MySQLConnector.readTable(sc,idsite,query,fields)  
 
   }
   

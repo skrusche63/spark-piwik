@@ -30,17 +30,6 @@ object Configuration {
   private val settings = HashMap.empty[String,String]
   
   /*
-   * MySQL Configuration
-   */
-  private val mysqlCfg = config.getConfig("mysql")
-  
-  settings += "mysql.url" -> mysqlCfg.getString("url")
-  settings += "mysql.db" -> mysqlCfg.getString("database")
-  
-  settings += "mysql.user" -> mysqlCfg.getString("user")
-  settings += "mysql.password" -> mysqlCfg.getString("password")
-  
-  /*
    * Markov Configuration
    */
   private val markovCfg = config.getConfig("markov")
@@ -60,5 +49,19 @@ object Configuration {
   settings += "markov.large.amount.horizon" -> markovCfg.getString("large.amount.horizon")
   
   def get = settings
+  
+  def mysql():(String,String,String,String) = {
+
+   val cfg = config.getConfig("mysql")
+  
+   val url = cfg.getString("url")
+   val db  = cfg.getString("database")
+  
+   val user = cfg.getString("user")
+   val password = cfg.getString("password")
+    
+   (url,db,user,password)
+   
+  }
   
 }

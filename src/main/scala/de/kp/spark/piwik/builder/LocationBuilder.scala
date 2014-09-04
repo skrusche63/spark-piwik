@@ -21,7 +21,7 @@ package de.kp.spark.piwik.builder
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-class LocationBuilder(url:String,database:String,user:String,password:String) extends BaseBuilder(url,database,user,password) {
+class LocationBuilder extends BaseBuilder {
   /**
    * This method retrieves selected fields from the piwi_log_conversion_item table, 
    * filtered by 'idsite' and a period of time for 'server_time':

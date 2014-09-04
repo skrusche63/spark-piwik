@@ -30,7 +30,9 @@ object MySQLConnector {
   private val MYSQL_DRIVER   = "com.mysql.jdbc.Driver"
   private val NUM_PARTITIONS = 1
    
-  def readTable(sc:SparkContext,url:String,database:String,user:String,password:String,idsite:Int,query:String,fields:List[String]):RDD[Map[String,Any]] = {
+  private val (url,database,user,password) = Configuration.mysql
+  
+  def readTable(sc:SparkContext,idsite:Int,query:String,fields:List[String]):RDD[Map[String,Any]] = {
     
     val result = new JdbcRDD(sc,() => getConnection(url,database,user,password),
       query,idsite,idsite,NUM_PARTITIONS,
