@@ -1,6 +1,6 @@
 ![Dr.Krusche & Partner PartG](https://raw.github.com/skrusche63/spark-elastic/master/images/dr-kruscheundpartner.png)
 
-## Beyond Piwik Web Analytics with Apache Spark 
+## Beyond Piwik Web Analytics 
 
 > Transform customer engagement data from Piwik Analytics into actionable business insights.
 
@@ -14,6 +14,24 @@ From [piwik.org](http://piwik.org/)
 Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from the Apache eco system enables to evaluate customer engagement data from Piwik with Association Rule & Frequent Sequence Mining, Context-Aware Recommendations, Markov Models and more to gain insights into customer engagement data far beyond traditional web analytics.
 
 ![Apache Spark and Piwik Analytics](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/Apache-Spark-and-Piwik.png)
+
+### Features
+
+* Customer Segmentation
+
+* Customer Behavior Similarity
+
+* Customer Churn Prediction
+
+* Customer Loyalty Prediction
+
+* Market Basket Analysis
+
+* Purchase Horizon Prediction
+
+and more.
+
+---
 
 ### Historical Engagement Data
 
@@ -347,7 +365,6 @@ def build(sc:SparkContext,source:RDD[String],output:String) {
 
 ```
 
-
 ---
 
 ### Real-time Engagement Data
@@ -358,7 +375,13 @@ Historical customer engagement data are an appropriate means to discover valuabl
 
 #### Real-time Clickstream Analysis
 
-#### Real-time Outlier Detection
+Real-time Clickstream Analysis starts from customer interaction events sent by Piwik's tracking library. The endpoint for this library is a REST service, backed by [Spray](http://spray.io/), an open-source oolkit on top of Scala and Akka. 
+
+Spray is actor-based, lightweight, and modular, and comes with a small, embedded and super-fast HTTP server that is a great alternative to servlet containers. It is fully asynchronous and can handle thousands of concurrent connections.
+
+Spray is used to delegate customer interaction events to Apache Kafka. Using the streaming support of Spark Streaming, these events are transformed into page views. These are analyzed in real-time to build e.g. page or visitor counts from streaming windows.
+
+This approach enables to look into an event stream in real-time, and, e.g. determines which pages have been clicked or how many visitors have visited a web site every 15 seconds.
 
 ---
 
