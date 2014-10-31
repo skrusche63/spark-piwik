@@ -1,4 +1,4 @@
-package de.kp.spark.piwik.markov.hmm
+package de.kp.spark.piwik.sandbox
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -18,7 +18,8 @@ package de.kp.spark.piwik.markov.hmm
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-import de.kp.scala.hmm.{HmmPredictor,HmmModel,HmmTrainer}
+import de.kp.scala.hmm.{HmmPredictor, HmmModel, HmmTrainer}
+import scala.Array.canBuildFrom
 
 class LoyaltyModel(model:HmmModel,hStates:Map[Int,String],oStates:Map[String,Int]) {
   

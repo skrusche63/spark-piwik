@@ -20,7 +20,7 @@ package de.kp.spark.piwik.heatmap
 
 import org.apache.spark.SparkContext
 
-import de.kp.spark.piwik.SparkApp
+import de.kp.spark.piwik.sandbox.SparkApp
 
 import java.awt.image.BufferedImage
 import java.awt.Color
