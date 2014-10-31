@@ -45,11 +45,34 @@ case class ServiceResponse(
   service:String,task:String,data:Map[String,String],status:String
 )
 
+case class Preference(
+  user:String,product:String,score:Int
+)
+
+case class Preferences(items:List[Preference])
+
+/*
+ * Service requests are mapped onto job descriptions and are stored
+ * in a Redis instance
+ */
+case class JobDesc(
+  service:String,task:String,status:String
+)
+
 object Serializer {
     
   implicit val formats = Serialization.formats(NoTypeHints)
 
+  /*
+   * Support for serialization and deserialization of job descriptions
+   */
+  def serializeJob(job:JobDesc):String = write(job)
+
+  def deserializeJob(job:String):JobDesc = read[JobDesc](job)
+
   def serializeActorsStatus(stati:ActorsStatus):String = write(stati)
+
+  def serializePreferences(preferences:Preferences):String = write(preferences)
 
   def serializeResponse(response:ServiceResponse):String = write(response)
   def deserializeRequest(request:String):ServiceRequest = read[ServiceRequest](request)
@@ -68,6 +91,11 @@ object Services {
    */
   val INTENT:String = "intent"
   /*
+   * Recommendation is an internal service of PIWIKinsight and uses ALS to
+   * predict the most preferred item for a certain user
+   */
+  val RECOMMENDATION:String = "recommendation"
+  /*
    * PIWIKinsight. supports Series Analysis; the respectiv request is 
    * delegated to Predictiveworks.
    */
@@ -80,8 +108,18 @@ object Services {
 }
 
 object Messages {
+  
+  def MISSING_PARAMETERS(uid:String):String = String.format("""Parameters are missing for uid '%s'.""", uid)
+
+  def MODEL_BUILDING_STARTED(uid:String) = String.format("""Model building started for uid '%s'.""", uid)
+  
+  def MODEL_DOES_NOT_EXIST(uid:String):String = String.format("""Model does not exist for uid '%s'.""", uid)
 
   def REQUEST_IS_NOT_SUPPORTED():String = String.format("""Unknown request.""")
+
+  def TASK_DOES_NOT_EXIST(uid:String):String = String.format("""The task with uid '%s' does not exist.""", uid)
+
+  def TASK_IS_UNKNOWN(uid:String,task:String):String = String.format("""The task '%s' is unknown for uid '%s'.""", task, uid)
    
 }
 
@@ -89,5 +127,9 @@ object ResponseStatus {
   
   val FAILURE:String = "failure"
   val SUCCESS:String = "success"
+    
+  val DATASET:String = "dataset"
+  val STARTED:String = "started"
+  val FINISHED:String = "finished"
     
 }

@@ -18,6 +18,7 @@ package de.kp.spark.piwik.actor
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
+import org.apache.spark.SparkContext
 import akka.actor.{ActorLogging,Props}
 
 import akka.pattern.ask
@@ -29,9 +30,9 @@ import de.kp.spark.piwik.model._
 
 import scala.concurrent.duration.DurationInt
 
-class TrainMaster extends MonitoredActor with ActorLogging {
+class TrainMaster(@transient val sc:SparkContext) extends MonitoredActor with ActorLogging {
 
-  val router = context.actorOf(Props(new TrainActor()).withRouter(RoundRobinRouter(workers)))
+  val router = context.actorOf(Props(new TrainActor(sc)).withRouter(RoundRobinRouter(workers)))
 
   def receive = {
     /*

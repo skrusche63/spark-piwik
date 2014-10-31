@@ -18,12 +18,13 @@ package de.kp.spark.piwik.actor
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-import akka.actor.{Actor,ActorLogging}
+import org.apache.spark.SparkContext
+import akka.actor.Props
 
 import de.kp.spark.piwik.model._
 import de.kp.spark.piwik.context.GetContext
 
-class GetActor() extends BaseActor {
+class GetActor(@transient val sc:SparkContext) extends BaseActor {
 
   implicit val ec = context.dispatcher
 
@@ -34,14 +35,32 @@ class GetActor() extends BaseActor {
       val origin = sender
       
       if (isValid(req)) {
+      
+        /*
+         * We distinguish between get requests that have to be delegated to
+         * Predictiworks. via the GetContext and functionality that is intrinsic
+         * part of PIWIKinsight.
+         */
+        req.service match {
+          
+          case Services.RECOMMENDATION => {
+               
+            val actor = context.actorOf(Props(new ALSActor(sc)))
+
+          }
+          case _ => {
         
-        val response = GetContext.send(req).mapTo[ServiceResponse]
-        response.onSuccess {
-          case result => origin ! result
+            val response = GetContext.send(req).mapTo[ServiceResponse]
+            response.onSuccess {
+              case result => origin ! result
+            }
+            response.onFailure {
+              case throwable => origin ! failure(req,throwable.getMessage())	 	      
+	        }
+            
+          }
+          
         }
-        response.onFailure {
-          case throwable => origin ! failure(req,throwable.getMessage())	 	      
-	    }
       
       } else {
         

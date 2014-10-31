@@ -23,6 +23,11 @@ import org.apache.spark.SparkContext
 
 import org.apache.spark.mllib.recommendation.{ALS,MatrixFactorizationModel,Rating}
 
+import de.kp.spark.piwik.model._
+
+import de.kp.spark.piwik.hadoop.HadoopIO
+import de.kp.spark.piwik.redis.RedisCache
+
 /**
  * 
  * Business Case
@@ -46,22 +51,36 @@ import org.apache.spark.mllib.recommendation.{ALS,MatrixFactorizationModel,Ratin
  *    
  */
 
-class RecommenderModel(@transient val sc:SparkContext,val userspec:Dict,val itemspec:Dict,val matrix:MatrixFactorizationModel) {
+class RecommenderModel(@transient val sc:SparkContext,uid:String,data:Map[String,String]) {
+
+  val (userspec,itemspec,matrix) = HadoopIO.readRecom(RedisCache.model(uid))
+
+  def predict():String = {
+
+    val users = data("users").split(",")
+    val items = data("items").split(",")
+    
+    val pairs = users.zip(items).toList
+    val preferences = predict(pairs)
+    
+    Serializer.serializePreferences(new Preferences(preferences))
+
+  }
   
   /**
    * Predict the preferences of a certain user for a list of products.
    */
-  def predict(user:String,products:List[String]):Array[Preference] = {
+  def predict(user:String,products:List[String]):List[Preference] = {
 
     val uid = userspec.getIndex(user)
     val candidates = sc.parallelize(products.map(product => itemspec.getIndex(product)))
     
     val ratings = matrix.predict(candidates.map((uid, _))).collect
-    ratings.sortBy(-_.rating).map(toPreference)
+    ratings.sortBy(-_.rating).map(toPreference).toList
     
   }
   
-  def predict(pairs:List[(String,String)]):Array[Preference] = {
+  def predict(pairs:List[(String,String)]):List[Preference] = {
     
     val data = sc.parallelize(pairs.map(pair => {
       
@@ -73,11 +92,11 @@ class RecommenderModel(@transient val sc:SparkContext,val userspec:Dict,val item
     }))
 
     val ratings = matrix.predict(data).collect
-    ratings.sortBy(-_.rating).map(toPreference)
+    ratings.sortBy(-_.rating).map(toPreference).toList
     
   }
   
-  def recommendProducts(user:String,num:Int):Array[Preference] = {
+  def recommendProducts(user:String,num:Int):List[Preference] = {
     
     /*
      * Convert user into uid
@@ -88,7 +107,7 @@ class RecommenderModel(@transient val sc:SparkContext,val userspec:Dict,val item
      * Recommend products
      */
     val ratings = matrix.recommendProducts(uid, num)
-    ratings.sortBy(-_.rating).map(toPreference)
+    ratings.sortBy(-_.rating).map(toPreference).toList
     
   }
 
@@ -109,23 +128,22 @@ class RecommenderModel(@transient val sc:SparkContext,val userspec:Dict,val item
  * 
  */  
 class Recommender extends Serializable {
-  /*
-   * We restrict to users within a certain interval
-   * of ratings; the default parameters filter users
-   * with ratings outside of [10..20]
-   */
-  val minprefs = 10
-  val maxprefs = 20
 
-  /*
-   * Partitions used to partition the training dataset 
-   */
-  val partitions = 20
-
-  def train(dataset:RDD[String]):RecommenderModel = {
+  def train(dataset:RDD[String],params:Map[String,String]=Map.empty[String,String]):(Dict,Dict,MatrixFactorizationModel) = {
 
     val sc = dataset.context
     val prefs = NPrefBuilder.build(dataset)
+    
+    /*
+     * We restrict to users within a certain interval of ratings; the default parameters 
+     * filter users with ratings outside of [10..20]
+     */
+    val minprefs = if (params.contains("minprefs")) params("minprefs").toInt else 10
+    val maxprefs = if (params.contains("maxprefs")) params("maxprefs").toInt else 20
+    
+    /* Partitions used to partition the training dataset */
+    val partitions = if (params.contains("partitions")) params("partitions").toInt else 20
+    
     /*
      * Restrict to user that match the interval criteria defined above
      */
@@ -155,10 +173,14 @@ class Recommender extends Serializable {
       
     })
     
+    val rank = if (params.contains("rank")) params("rank").toInt else 10
+    val iter = if (params.contains("iter")) params("iter").toInt else 20
+    
+    val lambda = if (params.contains("lambda")) params("lambda").toDouble else 0.01
+    
     /* Build model */
-    val model = ALS.train((ratings).repartition(partitions), 10, 20, 0.01)
-         
-    new RecommenderModel(sc,users,products,model)
+    val model = ALS.train((ratings).repartition(partitions),rank,iter,lambda)        
+    (users,products,model)
   
   }
 

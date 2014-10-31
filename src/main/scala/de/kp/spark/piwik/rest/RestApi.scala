@@ -56,12 +56,12 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
   val (heartbeat,time) = Configuration.actor      
   private val RouteCache = CachingDirectives.routeCache(1000,16,Duration.Inf,Duration("30 min"))
 
-  val finder = system.actorOf(Props[GetMaster], name="GetMaster")
+  val finder = system.actorOf(Props(new GetMaster(sc)), name="GetMaster")
 
-  val monitor = system.actorOf(Props[StatusMaster], name="StatusMaster")
-  val registrar = system.actorOf(Props[MetaMaster], name="MetaMaster")
+  val monitor = system.actorOf(Props(new StatusMaster(sc)), name="StatusMaster")
+  val registrar = system.actorOf(Props(new MetaMaster()), name="MetaMaster")
   
-  val trainer = system.actorOf(Props[TrainMaster], name="TrainMaster")
+  val trainer = system.actorOf(Props(new TrainMaster(sc)), name="TrainMaster")
  
   def start() {
     RestService.start(routes,system,host,port)

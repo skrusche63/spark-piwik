@@ -21,9 +21,7 @@ package de.kp.spark.piwik.recom
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext._
 
-case class Preference(
-  user:String,product:String,score:Int
-)
+import de.kp.spark.piwik.model._
 
 /**
  * The NPrefBuilder provides a mechanism to compute
@@ -67,7 +65,7 @@ object NPrefBuilder {
      * into an Array[String] and all items are made unique. The result is mapped
      * into (user,item,support) tuples
      */
-    val userItemSupport = transactions.flatMap(valu => List.fromArray(valu._2.split(" ")).distinct.map(item => (valu._1,item)))
+    val userItemSupport = transactions.flatMap(valu => valu._2.split(" ").toList.distinct.map(item => (valu._1,item)))
       .groupBy(valu => (valu._1,valu._2))
       .map(grouped => (grouped._1,grouped._2.size)).map(valu => (valu._1._1,valu._1._2,valu._2))   
     /**

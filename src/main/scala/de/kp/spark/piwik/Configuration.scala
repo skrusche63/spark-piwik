@@ -83,6 +83,13 @@ object Configuration {
    (url,db,user,password)
    
   }
+   
+  def recommendation():String = {
+  
+    val cfg = config.getConfig("recommendation")
+    cfg.getString("base")   
+    
+  }
 
   def rest():(String,Int) = {
       

@@ -18,10 +18,13 @@ package de.kp.spark.piwik.actor
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
+import org.apache.spark.SparkContext
+import akka.actor.Props
+
 import de.kp.spark.piwik.model._
 import de.kp.spark.piwik.context.StatusContext
 
-class StatusActor() extends BaseActor {
+class StatusActor(@transient val sc:SparkContext) extends BaseActor {
 
   implicit val ec = context.dispatcher
 
@@ -32,13 +35,31 @@ class StatusActor() extends BaseActor {
       val origin = sender
       if (isValid(req)) {
       
-        val response = StatusContext.send(req).mapTo[ServiceResponse]
-        response.onSuccess {
-          case result => origin ! result
+        /*
+         * We distinguish between status request that have to be delegated to
+         * Predictiworks. via the StatusContext and functionality that is intrinsic
+         * part of PIWIKinsight.
+         */
+        req.service match {
+          
+          case Services.RECOMMENDATION => {
+               
+            val actor = context.actorOf(Props(new ALSActor(sc)))
+
+          }
+          case _ => {
+       
+            val response = StatusContext.send(req).mapTo[ServiceResponse]
+            response.onSuccess {
+              case result => origin ! result
+            }
+            response.onFailure {
+              case throwable => origin ! failure(req,throwable.getMessage())	 	      
+	        }
+            
+          }
+          
         }
-        response.onFailure {
-          case throwable => origin ! failure(req,throwable.getMessage())	 	      
-	    }
       
       } else {
         

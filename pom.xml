@@ -167,15 +167,24 @@
 	  <artifactId>mahout-math</artifactId>
 	  <version>0.9</version>
     </dependency>    
-
+   
+    <!-- jedis 2.5.2 -->
     <dependency>
-	  <groupId>com.h2database</groupId>
-	  <artifactId>h2</artifactId>
-	  <version>1.4.181</version>
-    </dependency>  
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>2.5.2</version>
+    </dependency>
   
   </dependencies>
 
+  <repositories>
+    <repository>
+      <id>spray repo</id>
+      <name>Spray Repository</name>
+      <url>http://repo.spray.io/</url>
+    </repository>  
+  </repositories>
+  
   <build>
     <sourceDirectory>src/main/scala</sourceDirectory>
     <testSourceDirectory>src/test/scala</testSourceDirectory>
