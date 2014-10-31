@@ -47,6 +47,15 @@ object Configuration {
     
   }
   
+  def kafka():String = {
+  
+    val cfg = config.getConfig("kafka")
+    val brokers = cfg.getString("brokers")  
+    
+    brokers
+
+  }
+  
   def mysql():(String,String,String,String) = {
 
    val cfg = config.getConfig("mysql")

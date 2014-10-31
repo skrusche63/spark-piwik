@@ -41,7 +41,7 @@ import scala.concurrent.duration.DurationInt
 
 import scala.util.parsing.json._
 
-import de.kp.spark.piwik.actor.{GetMaster,MetaMaster,StatusMaster,TrainMaster}
+import de.kp.spark.piwik.actor.{GetMaster,MetaMaster,StatusMaster,StreamMaster,TrainMaster}
 import de.kp.spark.piwik.Configuration
 
 import de.kp.spark.piwik.model._
@@ -56,12 +56,20 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
   val (heartbeat,time) = Configuration.actor      
   private val RouteCache = CachingDirectives.routeCache(1000,16,Duration.Inf,Duration("30 min"))
 
+  /*
+   * Actor-based support for get, meta, status, train tasks
+   */
   val finder = system.actorOf(Props(new GetMaster(sc)), name="GetMaster")
 
   val monitor = system.actorOf(Props(new StatusMaster(sc)), name="StatusMaster")
   val registrar = system.actorOf(Props(new MetaMaster()), name="MetaMaster")
   
   val trainer = system.actorOf(Props(new TrainMaster(sc)), name="TrainMaster")
+  /*
+   * The StreamMaster is responsible for collecting incoming events, e.g. pageviews
+   * and delegating these events to a Kafka queue for real-time processing
+   */
+  val streamer = system.actorOf(Props(new StreamMaster()), name="StreamMaster")
  
   def start() {
     RestService.start(routes,system,host,port)
@@ -89,6 +97,13 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
 	      ctx => doStatus(ctx,service)
 	    }
 	  }
+    }  ~ 
+    path("stream" / Segment) {service => 
+	  post {
+	    respondWithStatus(OK) {
+	      ctx => doStream(ctx,service)
+	    }
+	  }
     } 
   
   }
@@ -97,12 +112,18 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
    * or concept is supported; the REST API is responsible for delegating
    * the request to the respective master actors as fast as possible
    */
-
   private def doGet[T](ctx:RequestContext,service:String,concept:String) = doRequest(ctx,service,"get:" + concept)
 
   private def doTrain[T](ctx:RequestContext,segment:String) = doRequest(ctx,"outlier","train")
 
   private def doStatus[T](ctx:RequestContext,service:String) = doRequest(ctx,service,"status")
+  
+  /**
+   * Stream support means to collect events, e.g. pages views, and send these events
+   * to a Kafka message system; the retrieval of the streaming results is done with
+   * respective get requests
+   */
+  private def doStream[T](ctx:RequestContext,service:String) = doRequest(ctx,service,"stream")
   
   private def doRequest[T](ctx:RequestContext,service:String,task:String) = {
      
@@ -169,9 +190,12 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
     req match {
       
       case "get"   => finder
-      case "train" => trainer
       
       case "status" => monitor
+      
+      case "stream" => streamer
+
+      case "train" => trainer
       
       case _ => null
       
