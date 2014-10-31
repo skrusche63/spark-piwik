@@ -49,6 +49,26 @@ object Configuration {
   settings += "markov.large.amount.horizon" -> markovCfg.getString("large.amount.horizon")
   
   def get = settings
+
+  def actor():(Int,Int) = {
+  
+    val cfg = config.getConfig("actor")
+    
+    val heartbeat = cfg.getInt("heartbeat")
+    val timeout = cfg.getInt("timeout")
+    
+    (heartbeat,timeout)
+    
+  }
+
+  def cache():Int = {
+  
+    val cfg = config.getConfig("cache")
+    val size = cfg.getInt("size")
+    
+    size
+    
+  }
   
   def mysql():(String,String,String,String) = {
 
@@ -62,6 +82,40 @@ object Configuration {
     
    (url,db,user,password)
    
+  }
+
+  def rest():(String,Int) = {
+      
+    val cfg = config.getConfig("rest")
+      
+    val host = cfg.getString("host")
+    val port = cfg.getInt("port")
+
+    (host,port)
+    
+  }
+
+  def router():(Int,Int,Int) = {
+  
+    val cfg = config.getConfig("router")
+  
+    val time    = cfg.getInt("time")
+    val retries = cfg.getInt("retries")  
+    val workers = cfg.getInt("workers")
+    
+    (time,retries,workers)
+
+  }
+  
+  def spark():Map[String,String] = {
+  
+    val cfg = config.getConfig("spark")
+    
+    Map(
+      "spark.executor.memory"          -> cfg.getString("spark.executor.memory"),
+	  "spark.kryoserializer.buffer.mb" -> cfg.getString("spark.kryoserializer.buffer.mb")
+    )
+
   }
   
 }

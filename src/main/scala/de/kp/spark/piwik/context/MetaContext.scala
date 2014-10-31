@@ -1,4 +1,4 @@
-package de.kp.spark.piwik
+package de.kp.spark.piwik.context
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -18,34 +18,26 @@ package de.kp.spark.piwik
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-import akka.actor.{ActorSystem,Props}
-import com.typesafe.config.ConfigFactory
+import de.kp.spark.piwik.RemoteClient
+import de.kp.spark.piwik.model._
 
-import de.kp.spark.piwik.actor.PiwikMaster
+import scala.concurrent.Future
+import scala.collection.mutable.HashMap
 
-object OutlierService {
+object MetaContext {
 
-  def main(args: Array[String]) {
-    
-    val name:String = "piwik-server"
-    val conf:String = "server.conf"
-
-    val server = new PiwikService(conf, name)
-    while (true) {}
-    
-    server.shutdown
-      
-  }
-
-}
-
-class PiwikService(conf:String, name:String) {
-
-  val system = ActorSystem(name, ConfigFactory.load(conf))
-  sys.addShutdownHook(system.shutdown)
-
-  val master = system.actorOf(Props[PiwikMaster], name="piwik-master")
-
-  def shutdown = system.shutdown()
+  private val clientPool = HashMap.empty[String,RemoteClient]
+ 
+  def send(req:String):Future[Any] = {
+   
+    val service = "meta"
+    if (clientPool.contains(service) == false) {
+      clientPool += service -> new RemoteClient(service)      
+    }
+   
+    val client = clientPool(service)
+    client.send(req)
+ 
+ }
   
 }

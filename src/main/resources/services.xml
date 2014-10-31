@@ -1,0 +1,65 @@
+<services>
+	
+	<!-- 
+	The Association Analysis Service discovers hidden relations in large-scale databases; 
+	the respective result may be used by find hidden aspects about customer and products 
+	and may help e.g. marketers to improve targeting. 
+	-->
+	<service name="association">akka.tcp://arules-server@127.0.0.1:2602/user/arules-master</service>
+
+	<!-- 
+	The Context-Aware Analysis Service leverages context-sensitive information to e.g. provide
+	personalized recommendations.
+	 -->
+	<service name="context">akka.tcp://fm-server@127.0.0.1:2604/user/fm-master</service>
+	
+	<!-- 
+	The Decision Analysis Service predicts the best decisions among multiple courses of action 
+	and identifies their decisive factors. 
+	-->
+	<service name="decision">akka.tcp://decision-server@127.0.0.1:2606/user/decision-master</service>
+	
+	<!-- 
+	The Intent Recognition Service uncover the intents of human behavior and delivers the ultimate 
+	customer understanding. 
+	-->
+	<service name="intent">akka.tcp://intent-server@127.0.0.1:2608/user/intent-master</service>
+	
+	<!-- 
+	The Outlier Detection Service finds anomalies in large-scale datasets and human behavior for 
+	advanced risk reduction.  
+	-->
+	<service name="outlier">akka.tcp://outlier-server@127.0.0.1:2610/user/outlier-master</service>
+
+    <!--  
+    The Series Service detects frequent patterns and rules in activity sequences; the respective
+    results may be used to predict pre- and post-behavior with respect to a specific event.
+     -->
+	<service name="series">akka.tcp://fsm-server@127.0.0.1:2612/user/fsm-master</service>
+
+    <!--  
+    The Similarity Service finds relevant similarities in dynamic activity sequences and identifies 
+    customers by their journeys.
+     -->
+	<service name="similarity">akka.tcp://cluster-server@127.0.0.1:2614/user/cluster-master</service>
+
+    <!--  
+    The Social Analysis Service determines and leverages actual trends from social media platforms 
+    in real-time.
+     -->
+	<service name="social">akka.tcp://social-server@127.0.0.1:2616/user/social-master</service>
+
+    <!--  
+    The Text Analysis Service language-agnostic semantic concept detection and prediction for 
+    semantic targeting.
+     -->
+	<service name="text">akka.tcp://text-server@127.0.0.1:2618/user/text-master</service>
+
+    <!-- 
+    The MetaService collects XML based metadata description that are used by the respective engines 
+    to access supported data sources; e.g. for the decision service a metadata description specifies 
+    which fields have to be taken into account and which of them are categorical or numerical fields.
+     -->
+	<service name="meta">akka.tcp://meta-server@127.0.0.1:2620/user/meta-master</service>
+
+</services>

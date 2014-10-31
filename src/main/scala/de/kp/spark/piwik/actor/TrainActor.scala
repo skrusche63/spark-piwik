@@ -18,24 +18,37 @@ package de.kp.spark.piwik.actor
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-import akka.actor.{Actor,ActorLogging,ActorRef,Props}
+import de.kp.spark.piwik.model._
+import de.kp.spark.piwik.context.TrainContext
 
-import akka.pattern.ask
-import akka.util.Timeout
+class TrainActor extends BaseActor {
 
-import akka.actor.{OneForOneStrategy, SupervisorStrategy}
-import akka.routing.RoundRobinRouter
+  implicit val ec = context.dispatcher
 
-import com.typesafe.config.ConfigFactory
-
-import scala.concurrent.duration.DurationInt
-
-class PiwikMaster extends Actor with ActorLogging {
-    
   def receive = {
     
-    case _ => log.info("Unknown request")
-  
+    case req:ServiceRequest => {
+      
+      val origin = sender
+      if (isValid(req)) {
+      
+        val response = TrainContext.send(req).mapTo[ServiceResponse]
+        response.onSuccess {
+          case result => origin ! result
+        }
+        response.onFailure {
+          case throwable => origin ! failure(req,throwable.getMessage())	 	      
+	    }
+      
+      } else {
+        
+        val message = Messages.REQUEST_IS_NOT_SUPPORTED
+        origin ! failure(req,message)
+        
+      }
+      
+    }
+    
   }
 
 }
