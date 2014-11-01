@@ -102,10 +102,10 @@ class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
    * The results of stream processing may be sent to Apache Kafka again 
    * for later processing or visualization through websocket access
    */
-  private def createKafkaContextPool(settings:Map[String,String]):GenericObjectPool[KafkaContext] = {
+  private def createKafkaContextPool(settings:Map[String,String]):GenericObjectPool[ProducerContext] = {
     
-    val ctxFactory = new BaseKafkaContextFactory(settings)
-    val pooledProducerFactory = new PooledKafkaContextFactory(ctxFactory)
+    val ctxFactory = new BaseProducerContextFactory(settings)
+    val pooledProducerFactory = new PooledProducerContextFactory(ctxFactory)
     
     val poolConfig = {
     
@@ -119,7 +119,7 @@ class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
     
     }
     
-    new GenericObjectPool[KafkaContext](pooledProducerFactory, poolConfig)
+    new GenericObjectPool[ProducerContext](pooledProducerFactory, poolConfig)
   
   }
  

@@ -26,7 +26,7 @@ import java.util.{Properties,UUID}
 import org.apache.commons.pool2.impl.DefaultPooledObject
 import org.apache.commons.pool2.{PooledObject,BasePooledObjectFactory}
 
-class KafkaContext(settings:Map[String,String]) {
+class ProducerContext(settings:Map[String,String]) {
 
   /*
    * This is for bootstrapping and the producer will only use it for getting metadata 
@@ -124,16 +124,16 @@ class KafkaContext(settings:Map[String,String]) {
   
 }
 
-abstract class KafkaContextFactory(settings:Map[String,String]) extends Serializable {
-  def newInstance(): KafkaContext  
+abstract class ProducerContextFactory(settings:Map[String,String]) extends Serializable {
+  def newInstance(): ProducerContext  
 }
 
-class BaseKafkaContextFactory(settings:Map[String,String]) extends KafkaContextFactory(settings) {
-  override def newInstance() = new KafkaContext(settings)
+class BaseProducerContextFactory(settings:Map[String,String]) extends ProducerContextFactory(settings) {
+  override def newInstance() = new ProducerContext(settings)
 }
 
 /**
- * An object factory for KafkaContexts, which is used to create a pool of such contexts 
+ * An object factory for ProducerContexts, which is used to create a pool of such contexts 
  * (think: DB connection pool).
  *
  * We use this class in Spark Streaming when writing data to Kafka. A pool is typically 
@@ -149,11 +149,11 @@ class BaseKafkaContextFactory(settings:Map[String,String]) extends KafkaContextF
 
 // TODO: Time out / shutdown producers if they haven't been used in a while.
 
-class PooledKafkaContextFactory(val factory:KafkaContextFactory) extends BasePooledObjectFactory[KafkaContext] with Serializable {
+class PooledProducerContextFactory(val factory:ProducerContextFactory) extends BasePooledObjectFactory[ProducerContext] with Serializable {
 
-  override def create(): KafkaContext = factory.newInstance()
+  override def create(): ProducerContext = factory.newInstance()
 
-  override def wrap(obj: KafkaContext): PooledObject[KafkaContext] = new DefaultPooledObject(obj)
+  override def wrap(obj: ProducerContext): PooledObject[ProducerContext] = new DefaultPooledObject(obj)
 
   /** 
    * From the Commons Pool docs: "Invoked on every instance when it is being "dropped" from the pool.  
@@ -161,7 +161,7 @@ class PooledKafkaContextFactory(val factory:KafkaContextFactory) extends BasePoo
    * in a generally consistent state."
    * 
    */
-  override def destroyObject(pobj:PooledObject[KafkaContext]): Unit = {
+  override def destroyObject(pobj:PooledObject[ProducerContext]): Unit = {
     
     pobj.getObject.shutdown()
     super.destroyObject(pobj)
