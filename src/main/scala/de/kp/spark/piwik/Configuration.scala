@@ -47,12 +47,14 @@ object Configuration {
     
   }
   
-  def kafka():String = {
+  def kafka():(String,String) = {
   
     val cfg = config.getConfig("kafka")
+
     val brokers = cfg.getString("brokers")  
+    val zklist = cfg.getString("zklist")  
     
-    brokers
+    (brokers,zklist)
 
   }
   

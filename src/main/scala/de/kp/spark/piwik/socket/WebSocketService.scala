@@ -43,20 +43,42 @@ object WebSocketService {
 
 class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
   
-  private val reactors = Map[String, ActorRef]()
+  private val services = Map[String,KafkaService]()
   
-  final def forResource(descriptor:String,reactor:Option[ActorRef]) {
+  final def forResource(descriptor:String,reactor:Option[KafkaService]) {
     reactor match {
-      case Some(actor) => reactors += ((descriptor, actor))
-      case None => reactors -= descriptor
+      case Some(service) => services += ((descriptor,service))
+      case None => services -= descriptor
     }
+  }
+  
+  final override def start() {
+
+    /* Start registered services */
+    for (entry <- services) {
+      entry._2.start()
+    }
+    
+    super.start()
+    
+  }
+  
+  final override def stop() {
+
+    /* Stop registered services */
+    for (entry <- services) {
+      entry._2.stop()
+    }
+    
+    super.stop()
+    
   }
   
   final override def onMessage(ws : WebSocket, msg : String) {
 
     if (null != ws) {
-      reactors.get(ws.getResourceDescriptor) match {
-        case Some(actor) => actor ! WebSocketService.Message(ws, msg)
+      services.get(ws.getResourceDescriptor) match {
+        case Some(service) => service.actor ! WebSocketService.Message(ws, msg)
         case None => ws.close(CloseFrame.REFUSE)
       }
     
@@ -66,8 +88,8 @@ class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
   final override def onOpen(ws : WebSocket, hs : ClientHandshake) {
   
     if (null != ws) {
-      reactors.get(ws.getResourceDescriptor) match {
-        case Some(actor) => actor ! WebSocketService.Open(ws, hs)
+      services.get(ws.getResourceDescriptor) match {
+        case Some(service) => service.actor ! WebSocketService.Open(ws, hs)
         case None => ws.close(CloseFrame.REFUSE)
       }
     
@@ -77,8 +99,8 @@ class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
   final override def onClose(ws : WebSocket, code : Int, reason : String, external : Boolean) {
     
     if (null != ws) {
-      reactors.get(ws.getResourceDescriptor) match {
-        case Some(actor) => actor ! WebSocketService.Close(ws, code, reason, external)
+      services.get(ws.getResourceDescriptor) match {
+        case Some(service) => service.actor ! WebSocketService.Close(ws, code, reason, external)
         case None => ws.close(CloseFrame.REFUSE)
       }
     
@@ -88,11 +110,12 @@ class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
   final override def onError(ws : WebSocket, ex : Exception) {
     
     if (null != ws) {
-      reactors.get(ws.getResourceDescriptor) match {
-        case Some(actor) => actor ! WebSocketService.Error(ws, ex)
+      services.get(ws.getResourceDescriptor) match {
+        case Some(service) => service.actor ! WebSocketService.Error(ws, ex)
         case None => ws.close(CloseFrame.REFUSE)
       }
     
     }
+    
   }
 }

@@ -22,6 +22,8 @@ import akka.actor.{Actor,ActorLogging}
 import scala.collection._
 
 import org.java_websocket.WebSocket
+
+import de.kp.spark.piwik.Configuration
 import de.kp.spark.piwik.socket.WebSocketService
 
 object PageCountActor {
@@ -39,15 +41,14 @@ class PageCountActor extends Actor with ActorLogging {
   implicit val ec = context.dispatcher
 
   val clients = mutable.ListBuffer[WebSocket]()
-
+  
   def receive = {
 
     case Close(ws,code,reason,ext) => self ! Unregister(ws)
 
     case Error(ws,ex) => self ! Unregister(ws)
 
-    case Message(ws, msg) => {
-      // TODO
+    case Message(ws,msg) => {
       log.debug("url {} received msg '{}'", ws.getResourceDescriptor, msg)
     }
     
@@ -63,6 +64,14 @@ class PageCountActor extends Actor with ActorLogging {
       if (null != ws) {
         log.debug("unregister monitor")
         clients -= ws
+      }
+    
+    }
+    
+    case message:String => {
+      
+      for (client <- clients) {
+        client.send(message)
       }
     
     }

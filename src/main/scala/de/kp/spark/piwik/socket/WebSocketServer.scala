@@ -33,13 +33,18 @@ object WebSocketServer {
     val service = new WebSocketService(port)
     
     /*
-     * Generate actors for different web socket descriptors
+     * Generate actors and services for different web socket descriptors;
+     * note, that the different descriptors refer to specific Kafka topics
      */
     val pageActor = system.actorOf(Props[PageCountActor], "PageCountActor")
-    service.forResource("/pagecount/ws", Some(pageActor))
+    val pageService = new KafkaService("pagecount",pageActor)
+    
+    service.forResource("/pagecount/ws", Some(pageService))
 
     val visitorActor = system.actorOf(Props[VisitorCountActor], "VisitorCountActor")
-    service.forResource("/visitorcount/ws", Some(visitorActor))
+    val visitorService = new KafkaService("visitorcount",visitorActor)
+    
+    service.forResource("/visitorcount/ws", Some(visitorService))
    
     service.start()
     sys.addShutdownHook({system.shutdown;service.stop})

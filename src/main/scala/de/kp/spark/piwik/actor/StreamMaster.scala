@@ -19,7 +19,7 @@ import akka.util.Timeout.durationToTimeout
 class StreamMaster extends MonitoredActor with ActorLogging {
    
    /* Load configuration for kafka */
-   val brokers = Configuration.kafka
+   val (brokers,zklist) = Configuration.kafka
   
    val kafkaConfig = Map("kafka.brokers" -> brokers)
    val sc = new StreamContext(kafkaConfig)

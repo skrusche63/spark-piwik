@@ -47,7 +47,6 @@ class VisitorCountActor extends Actor with ActorLogging {
     case Error(ws,ex) => self ! Unregister(ws)
 
     case Message(ws, msg) => {
-      // TODO
       log.debug("url {} received msg '{}'", ws.getResourceDescriptor, msg)
     }
     
@@ -63,6 +62,14 @@ class VisitorCountActor extends Actor with ActorLogging {
       if (null != ws) {
         log.debug("unregister monitor")
         clients -= ws
+      }
+    
+    }
+    
+    case message:String => {
+      
+      for (client <- clients) {
+        client.send(message)
       }
     
     }
