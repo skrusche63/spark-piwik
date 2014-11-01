@@ -1,4 +1,4 @@
-package de.kp.spark.piwik.sandbox
+package de.kp.spark.piwik.stream
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -20,6 +20,7 @@ package de.kp.spark.piwik.sandbox
 
 import org.apache.spark.{SparkConf,SparkContext}
 import org.apache.spark.SparkContext._
+import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.serializer.KryoSerializer
 

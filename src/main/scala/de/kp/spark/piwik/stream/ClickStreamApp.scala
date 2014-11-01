@@ -34,9 +34,9 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
 
-import de.kp.spark.piwik.sandbox.SparkApp
-
 import java.util.UUID
+import org.apache.commons.pool2.impl.{GenericObjectPool, GenericObjectPoolConfig}
+
 
 class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
   
@@ -96,6 +96,31 @@ class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
     ssc.start()
     ssc.awaitTermination()    
 
+  }
+  
+  /**
+   * The results of stream processing may be sent to Apache Kafka again 
+   * for later processing or visualization through websocket access
+   */
+  private def createKafkaContextPool(settings:Map[String,String]):GenericObjectPool[KafkaContext] = {
+    
+    val ctxFactory = new BaseKafkaContextFactory(settings)
+    val pooledProducerFactory = new PooledKafkaContextFactory(ctxFactory)
+    
+    val poolConfig = {
+    
+      val c = new GenericObjectPoolConfig
+      val maxNumProducers = 10
+      
+      c.setMaxTotal(maxNumProducers)
+      c.setMaxIdle(maxNumProducers)
+      
+      c
+    
+    }
+    
+    new GenericObjectPool[KafkaContext](pooledProducerFactory, poolConfig)
+  
   }
  
 }

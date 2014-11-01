@@ -110,5 +110,14 @@ object Configuration {
     )
 
   }
+
+  def websocket():Int = {
+  
+    val cfg = config.getConfig("websocket")
+    val port = cfg.getInt("port")
+    
+    port
+    
+  }
   
 }
