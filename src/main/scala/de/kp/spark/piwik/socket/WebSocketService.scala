@@ -74,7 +74,7 @@ class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
     
   }
   
-  final override def onMessage(ws : WebSocket, msg : String) {
+  final override def onMessage(ws:WebSocket,msg:String) {
 
     if (null != ws) {
       services.get(ws.getResourceDescriptor) match {
@@ -85,7 +85,7 @@ class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
     }
   }
   
-  final override def onOpen(ws : WebSocket, hs : ClientHandshake) {
+  final override def onOpen(ws:WebSocket,hs:ClientHandshake) {
   
     if (null != ws) {
       services.get(ws.getResourceDescriptor) match {
@@ -96,7 +96,7 @@ class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
     }
   }
   
-  final override def onClose(ws : WebSocket, code : Int, reason : String, external : Boolean) {
+  final override def onClose(ws:WebSocket,code:Int,reason:String,external:Boolean) {
     
     if (null != ws) {
       services.get(ws.getResourceDescriptor) match {
@@ -107,7 +107,7 @@ class WebSocketService(val port:Int) extends WSS(new InetSocketAddress(port)) {
     }
   }
   
-  final override def onError(ws : WebSocket, ex : Exception) {
+  final override def onError(ws:WebSocket,ex:Exception) {
     
     if (null != ws) {
       services.get(ws.getResourceDescriptor) match {

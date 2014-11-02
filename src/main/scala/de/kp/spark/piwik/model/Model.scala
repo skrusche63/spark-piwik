@@ -34,6 +34,10 @@ case class ActorStatus(
   status:String
 )
 
+case class PageCount(url:String,count:Long)
+
+case class VisitorCount(visitor:String,count:Int)
+
 case class AliveMessage()
 
 case class ActorsStatus(items:List[ActorStatus])
@@ -62,6 +66,9 @@ case class JobDesc(
 object Serializer {
     
   implicit val formats = Serialization.formats(NoTypeHints)
+
+  def serializePageCount(pagecount:PageCount):String = write(pagecount)
+  def serializeVisitorCount(visitorcount:VisitorCount):String = write(visitorcount)
 
   /*
    * Support for serialization and deserialization of job descriptions

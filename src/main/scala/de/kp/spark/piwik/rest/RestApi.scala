@@ -234,6 +234,8 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
       
       case "get"   => finder
       
+      case "register" => registrar
+      
       case "status" => monitor
       
       case "stream" => streamer

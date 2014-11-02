@@ -37,6 +37,7 @@ import org.apache.spark.storage.StorageLevel
 import java.util.UUID
 import org.apache.commons.pool2.impl.{GenericObjectPool, GenericObjectPoolConfig}
 
+import de.kp.spark.piwik.model._
 
 class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
   
@@ -76,13 +77,33 @@ class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
     val stream = KafkaUtils.createStream[String,Event,StringDecoder,EventDecoder](ssc, kafkaConfig, kafkaTopics, StorageLevel.MEMORY_AND_DISK).map(_._2)
     val pageviews = stream.map(PView.fromStream(_))
 
+    val producerPool = sc.broadcast(createKafkaContextPool(settings))
+
     /* 
      * Compute a count of views per URL seen in each batch; a batch may be 1 second
      * or any other time period the streamining context is configured for (see above)
      */
     val pagecounts = pageviews.map(view => view.pageurl).countByValue()
-
-    pagecounts.foreachRDD(rdd => println(rdd.collect().toList))
+    pagecounts.foreachRDD(rdd => {
+      
+      val settings = Map.empty[String,String]
+      
+      rdd.foreachPartition(partition => {
+        
+        val producer = producerPool.value.borrowObject()
+        partition.foreach(entry => {
+          
+          val ser = Serializer.serializePageCount(new PageCount(entry._1,entry._2))
+          val bytes = ser.getBytes()
+          
+          producer.send(bytes,"pagecount")
+          
+        })
+        producerPool.value.returnObject(producer)
+        
+      })
+      
+    })
     
     /* 
      * Return the number of visitors in the last 15 seconds and repeat this action 
@@ -91,7 +112,27 @@ class ClickStreamApp(settings:Map[String,String]) extends SparkApp {
     val window = Seconds(15)
     val interval = Seconds(2)
     
-    val visitvisitorsorcounts = pageviews.window(window,interval).map(view => (view.visitor, 1)).groupByKey().map(v => (v._1,v._2.size))
+    val visitorcounts = pageviews.window(window,interval).map(view => (view.visitor, 1)).groupByKey().map(v => (v._1,v._2.size))
+    visitorcounts.foreachRDD(rdd => {
+      
+      val settings = Map.empty[String,String]
+      
+      rdd.foreachPartition(partition => {
+        
+        val producer = producerPool.value.borrowObject()
+        partition.foreach(entry => {
+          
+          val ser = Serializer.serializeVisitorCount(new VisitorCount(entry._1,entry._2))
+          val bytes = ser.getBytes()
+          
+          producer.send(bytes,"visitorcount")
+          
+        })
+        producerPool.value.returnObject(producer)
+        
+      })
+      
+    })
 
     ssc.start()
     ssc.awaitTermination()    
