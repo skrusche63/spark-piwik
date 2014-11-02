@@ -19,25 +19,10 @@ package de.kp.spark.piwik.context
 */
 
 import de.kp.spark.piwik.RemoteClient
-import de.kp.spark.piwik.model._
-
-import scala.concurrent.Future
 import scala.collection.mutable.HashMap
 
-object StatusContext {
+object StatusContext extends RemoteContext {
 
-  private val clientPool = HashMap.empty[String,RemoteClient]
- 
-  def send(req:ServiceRequest):Future[Any] = {
-   
-    val service = req.service
-    if (clientPool.contains(service) == false) {
-      clientPool += service -> new RemoteClient(service)      
-    }
-   
-    val client = clientPool(service)
-    client.send(req)
- 
- }
+  override val clientPool = HashMap.empty[String,RemoteClient]
   
 }

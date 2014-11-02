@@ -50,10 +50,13 @@ class TrainActor(@transient val sc:SparkContext) extends BaseActor {
           case _ => {
             /*
              * All other requests are delegated to Predictiveworks.
-             */
-            val response = TrainContext.send(req).mapTo[ServiceResponse]
+             */       
+            val service = req.service
+            val message = Serializer.serializeRequest(req)
+            
+            val response = TrainContext.send(service,message).mapTo[String]
             response.onSuccess {
-              case result => origin ! result
+              case result => origin ! Serializer.deserializeResponse(result)
             }
             response.onFailure {
               case throwable => origin ! failure(req,throwable.getMessage())	 	      

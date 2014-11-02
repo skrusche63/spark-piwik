@@ -91,6 +91,17 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
 	    }
 	  }
     }  ~ 
+    /*
+     * This request provides a metadata specification that has to be
+     * registered in a Redis instance by the 'meta' service
+     */
+    path("register" / Segment / Segment) {(service,subject) => 
+	  post {
+	    respondWithStatus(OK) {
+	      ctx => doRegister(ctx,service,subject)
+	    }
+	  }
+    }  ~ 
     path("status" / Segment) {service => 
 	  post {
 	    respondWithStatus(OK) {
@@ -113,6 +124,38 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
    * the request to the respective master actors as fast as possible
    */
   private def doGet[T](ctx:RequestContext,service:String,concept:String) = doRequest(ctx,service,"get:" + concept)
+  
+  private def doRegister[T](ctx:RequestContext,service:String,subject:String) = {
+
+    service match {
+
+	  case "association" => {
+	    /* ../register/association/fields */
+	    doRequest(ctx,"association","register")	      
+	  }
+      case "intent" => {
+	    
+	    subject match {	      
+	      /* ../register/intent/loyalty */
+	      case "loyalty" => doRequest(ctx,"intent","register:loyalty")
+
+	      /* ../register/intent/purchase */
+	      case "purchase" => doRequest(ctx,"intent","register:purchase")
+	      
+	      case _ => {}
+	      
+	    }
+      
+      }
+	  case "series" => {
+	    /* ../register/series/fields */
+	    doRequest(ctx,"series","register")	      
+	  }
+	  case _ => {}
+	  
+    }
+    
+  }
 
   private def doTrain[T](ctx:RequestContext,segment:String) = doRequest(ctx,"outlier","train")
 

@@ -1,4 +1,4 @@
-package de.kp.spark.piwik.actor
+package de.kp.spark.piwik.context
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
 * 
 * This file is part of the Spark-Piwik project
@@ -18,32 +18,25 @@ package de.kp.spark.piwik.actor
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
+import de.kp.spark.piwik.RemoteClient
 import de.kp.spark.piwik.model._
-import de.kp.spark.piwik.context.MetaContext
 
-class MetaActor() extends BaseActor {
+import scala.concurrent.Future
+import scala.collection.mutable.HashMap
 
-  implicit val ec = context.dispatcher
+class RemoteContext {
 
-  def receive = {
-    
-    case req:ServiceRequest => {
-      
-      val origin = sender
-        
-      val service = req.service
-      val message = Serializer.serializeRequest(req)
-            
-      val response = MetaContext.send(service,message).mapTo[String]
-      response.onSuccess {
-        case result => origin ! Serializer.deserializeResponse(result)
-      }
-      response.onFailure {
-        case throwable => origin ! failure(req,throwable.getMessage())	 	      
-	  }
-      
+  val clientPool = HashMap.empty[String,RemoteClient]
+ 
+  def send(service:String,message:String):Future[Any] = {
+   
+    if (clientPool.contains(service) == false) {
+      clientPool += service -> new RemoteClient(service)      
     }
-    
+   
+    val client = clientPool(service)
+    client.send(message)
+ 
   }
-
+  
 }

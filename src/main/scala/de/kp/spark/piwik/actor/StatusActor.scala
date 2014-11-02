@@ -48,10 +48,13 @@ class StatusActor(@transient val sc:SparkContext) extends BaseActor {
 
           }
           case _ => {
-       
-            val response = StatusContext.send(req).mapTo[ServiceResponse]
+        
+            val service = req.service
+            val message = Serializer.serializeRequest(req)
+            
+            val response = StatusContext.send(service,message).mapTo[String]
             response.onSuccess {
-              case result => origin ! result
+              case result => origin ! Serializer.deserializeResponse(result)
             }
             response.onFailure {
               case throwable => origin ! failure(req,throwable.getMessage())	 	      
