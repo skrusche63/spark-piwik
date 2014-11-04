@@ -1,4 +1,4 @@
-![Dr.Krusche & Partner PartG](https://raw.github.com/skrusche63/spark-elastic/master/images/dr-kruscheundpartner.png)
+![Dr.Krusche & Partner PartG](https://raw.github.com/skrusche63/spark-piwik/master/images/dr_kruscheundpartner_640.png)
 
 ## Beyond Piwik Web Analytics 
 
@@ -139,12 +139,6 @@ idsite|idvisitor|state state state ...
 
 The customer loyalty sequence may then be used as a starting point to predict, whether a certain customer intends to skip the relation to a certain business. 
 
-#### Customer Churn Prediction
-
-Customer churn refers to the situation when a customer ceases his or her relationship with a company. Online businesses typically treat a customer as churned once a particular amount of time has elapsed since the customer's last interaction with the site or service.
-
-*To be continued*
-
 #### Cross-Selling and more 
 
 Association rule mining is a wide-spread method to discover interesting relations between items in large-scale databases. These relations 
@@ -227,48 +221,12 @@ lno|item item item ...
 4,16 124 175
 5,232 4 238
 ...
-```
 
-The code below describes the `RuleBuilder` class that is responsible for discovering the association rules between the ecommerce items extracted from Piwik' database. 
+Association Rule Mining is based on the Association Analysis Engine of [Predictiveworks.](http://predictiveworks.eu). This engine is extracts transactions from Piwik's database
+and discovers the respective rules. The figure provides a conceptual perspective of the Association Analysis Engine.
 
-**Note**: The `RuleBuilder`depends on the code base of the [Spark-ARULES](https://github.com/skrusche63/spark-arules) project.
-
-```
-class RuleBuilder {
-
-  /**
-   * input = ["idsite|user|idorder|timestamp|items"]
-   */
-  def buildTopKRules(sc:SparkContext,dataset:RDD[String],k:Int=10,minconf:Double=0.8):String = {
-    
-    /* Prepare dataset */
-    val transactions = prepare(sc,dataset)
-    
-    /* Extract rules and convert into JSON */
-    val rules = TopK.extractRDDRules(sc,transactions,k,minconf)
-    TopK.rulesToJson(rules)
-     
-  }
-  
-  def prepare(sc:SparkContext,dataset:RDD[String]):RDD[(Int,Array[String])] = {
-
-    /* Reduce dataset to items and repartition to single partition */
-    val items = dataset.map(line => line.split("|")(4)).coalesce(1)
-    
-    val index = sc.parallelize(Range.Long(0, items.count, 1),items.partitions.size)
-    val zip = items.zip(index) 
-    
-    zip.map(valu => {
-      
-      val (line,no) = valu
-      (no.toInt, line.split(" "))
-      
-    })
+![Predictiveworks. and Association Analysis](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/association-rules-overview.png)
    
-  }
-
-} 
-```
 
 The table describes the result of the Top K Association Rule Mining, where `k = 10`  and the confidence threshold is set to `minconf = 0.8`. For example, the first row of table indicates that if a customers buys the ecommerce items with the `idaction_sku` value of `4` and `232` together, then there is a likelihood of `90%` that he or she also buys the item with the identifier `141`: [4, 232] -> [141].
 
