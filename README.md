@@ -221,6 +221,7 @@ lno|item item item ...
 4,16 124 175
 5,232 4 238
 ...
+```
 
 Association Rule Mining is based on the Association Analysis Engine of [Predictiveworks.](http://predictiveworks.eu). This engine is extracts transactions from Piwik's database
 and discovers the respective rules. The figure provides a conceptual perspective of the Association Analysis Engine.
