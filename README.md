@@ -11,25 +11,10 @@ web analytics, and, an appropriate starting point for market basket analysis, us
 From [piwik.org](http://piwik.org/)
 > Piwik is the leading open source web analytics platform that gives you valuable insights into your website’s visitors, your marketing campaigns and much more, so you can optimize your strategy and online experience of your visitors.
 
-Integrating Piwik Analytics with Apache Kafka, Spark and other technologies from the Apache eco system enables to evaluate customer engagement data from Piwik with Association Rule & Frequent Sequence Mining, Context-Aware Recommendations, Markov Models and more to gain insights into customer engagement data far beyond traditional web analytics.
+Integrating Piwik Analytics with [Predictiveworks.](http://predictiveworks.eu) enables to evaluate customer engagement data from Piwik with Association Analysis, Intent Recognition, Recommendations and Series Analysis and more to gain 
+insights into customer engagement data far beyond traditional web analytics.
 
-![Apache Spark and Piwik Analytics](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/Apache-Spark-and-Piwik.png)
-
-### Features
-
-* Customer Segmentation
-
-* Customer Behavior Similarity
-
-* Customer Churn Prediction
-
-* Customer Loyalty Prediction
-
-* Market Basket Analysis
-
-* Purchase Horizon Prediction
-
-and more.
+![Predictiveworks. and Piwik Analytics](https://raw.githubusercontent.com/skrusche63/spark-piwik/master/images/spark_piwik_640.png)
 
 ---
 
