@@ -130,7 +130,7 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
     service match {
 
 	  case "association" => {
-	    /* ../register/association/fields */
+	    /* ../register/association/field */
 	    doRequest(ctx,"association","register")	      
 	  }
       case "intent" => {
@@ -148,7 +148,7 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
       
       }
 	  case "series" => {
-	    /* ../register/series/fields */
+	    /* ../register/series/field */
 	    doRequest(ctx,"series","register")	      
 	  }
 	  case _ => {}
