@@ -157,7 +157,7 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
     
   }
 
-  private def doTrain[T](ctx:RequestContext,segment:String) = doRequest(ctx,"outlier","train")
+  private def doTrain[T](ctx:RequestContext,service:String) = doRequest(ctx,service,"train")
 
   private def doStatus[T](ctx:RequestContext,service:String) = doRequest(ctx,service,"status")
   
