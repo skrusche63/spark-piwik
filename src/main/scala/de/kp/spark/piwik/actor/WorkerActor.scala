@@ -21,8 +21,13 @@ package de.kp.spark.piwik.actor
 import org.apache.spark.SparkContext
 import akka.actor.Props
 
+import akka.pattern.ask
+import akka.util.Timeout
+
 import de.kp.spark.piwik.model._
 import de.kp.spark.piwik.context.RemoteContext
+
+import scala.concurrent.duration.DurationInt
 
 class WorkerActor(@transient val sc:SparkContext,ctx:RemoteContext) extends BaseActor {
 
@@ -39,8 +44,18 @@ class WorkerActor(@transient val sc:SparkContext,ctx:RemoteContext) extends Base
       req.service match {
           
         case Services.RECOMMENDATION => {
-            val actor = context.actorOf(Props(new ALSActor(sc)))
-            // TODO
+      
+          implicit val timeout:Timeout = DurationInt(time).second
+            
+          val actor = context.actorOf(Props(new ALSActor(sc)))
+          val response = ask(actor, req).mapTo[ServiceResponse]
+      
+          response.onSuccess {
+            case result => origin ! result
+          }
+          response.onFailure {
+            case result => origin ! failure(req)	      
+	      }
         }
         case _ => {
           /*

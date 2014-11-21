@@ -19,12 +19,15 @@ package de.kp.spark.piwik.actor
 */
 
 import akka.actor.{Actor,ActorLogging}
+
+import de.kp.spark.piwik.Configuration
 import de.kp.spark.piwik.model._
 
 import scala.concurrent.Future
 
 abstract class BaseActor extends Actor with ActorLogging {
 
+  val (heartbeat,time) = Configuration.actor      
   implicit val ec = context.dispatcher
   
   protected def failure(req:ServiceRequest):ServiceResponse = {
