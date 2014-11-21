@@ -18,32 +18,6 @@ package de.kp.spark.piwik.actor
 * If not, see <http://www.gnu.org/licenses/>.
 */
 
-import de.kp.spark.piwik.model._
-import de.kp.spark.piwik.context.MetaContext
+import org.apache.spark.SparkContext
 
-class MetaActor() extends BaseActor {
-
-  implicit val ec = context.dispatcher
-
-  def receive = {
-    
-    case req:ServiceRequest => {
-      
-      val origin = sender
-        
-      val service = req.service
-      val message = Serializer.serializeRequest(req)
-            
-      val response = MetaContext.send(service,message).mapTo[String]
-      response.onSuccess {
-        case result => origin ! Serializer.deserializeResponse(result)
-      }
-      response.onFailure {
-        case throwable => origin ! failure(req,throwable.getMessage())	 	      
-	  }
-      
-    }
-    
-  }
-
-}
+class MasterActor(@transient sc:SparkContext,name:String) extends MonitoredActor(sc,name)

@@ -36,7 +36,7 @@ class ALSActor(@transient val sc:SparkContext) extends BaseActor {
   
   private val base = Configuration.recommendation  
  
-  def receive = {
+  override def receive = {
 
     case req:ServiceRequest => {
       

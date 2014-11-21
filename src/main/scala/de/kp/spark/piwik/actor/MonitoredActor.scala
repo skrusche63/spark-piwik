@@ -19,6 +19,7 @@ package de.kp.spark.piwik.actor
 */
 
 import java.util.Date
+import org.apache.spark.SparkContext
 
 import akka.actor.{Actor,ActorLogging,ActorRef,Props}
 
@@ -26,15 +27,17 @@ import akka.pattern.ask
 import akka.util.Timeout
 
 import akka.actor.{OneForOneStrategy, SupervisorStrategy}
+import akka.routing.RoundRobinRouter
 
 import de.kp.spark.piwik.Configuration
 import de.kp.spark.piwik.model._
 
 import de.kp.spark.piwik.cache.ActorMonitor
+import de.kp.spark.piwik.context.RemoteContext
 
 import scala.concurrent.duration.DurationInt
 
-trait MonitoredActor extends Actor {
+class MonitoredActor(@transient sc:SparkContext, name:String) extends Actor with ActorLogging {
 
   val (heartbeat,time) = Configuration.actor      
   val (duration,retries,workers) = Configuration.router  
@@ -44,6 +47,35 @@ trait MonitoredActor extends Actor {
  
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries=retries,withinTimeRange = DurationInt(duration).minutes) {
     case _ : Exception => SupervisorStrategy.Restart
+  }
+  
+  protected val ctx = new RemoteContext()
+  protected val router = context.actorOf(Props(new WorkerActor(sc,ctx)).withRouter(RoundRobinRouter(workers)))
+
+  def receive = {
+    /*
+     * Message sent by the scheduler to track the 'heartbeat' of this actor
+     */
+    case req:AliveMessage => register(name)
+    
+    case req:ServiceRequest => {
+      
+      implicit val timeout:Timeout = DurationInt(time).second
+	  	    
+	  val origin = sender
+      val response = ask(router, req).mapTo[ServiceResponse]
+      
+      response.onSuccess {
+        case result => origin ! result
+      }
+      response.onFailure {
+        case result => origin ! failure(req)	      
+	  }
+      
+    }
+  
+    case _ => {}
+    
   }
   
   override def postStop() {

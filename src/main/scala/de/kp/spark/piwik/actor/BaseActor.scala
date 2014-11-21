@@ -21,18 +21,18 @@ package de.kp.spark.piwik.actor
 import akka.actor.{Actor,ActorLogging}
 import de.kp.spark.piwik.model._
 
+import scala.concurrent.Future
+
 abstract class BaseActor extends Actor with ActorLogging {
+
+  implicit val ec = context.dispatcher
   
-  protected def isValid(req:ServiceRequest):Boolean = {
+  protected def failure(req:ServiceRequest):ServiceResponse = {
     
-    val service = req.service
-    if (Services.isService(service) == false)
-      return false
-      
-    true
-    
+    val uid = req.data("uid")    
+    new ServiceResponse(req.service,req.task,Map("uid" -> uid),ResponseStatus.FAILURE)	
+  
   }
-  
 
   protected def failure(req:ServiceRequest,message:String):ServiceResponse = {
     

@@ -55,11 +55,4 @@
      -->
 	<service name="text">akka.tcp://text-server@127.0.0.1:2618/user/text-master</service>
 
-    <!-- 
-    The MetaService collects XML based metadata description that are used by the respective engines 
-    to access supported data sources; e.g. for the decision service a metadata description specifies 
-    which fields have to be taken into account and which of them are categorical or numerical fields.
-     -->
-	<service name="register">akka.tcp://meta-server@127.0.0.1:2620/user/meta-master</service>
-
 </services>

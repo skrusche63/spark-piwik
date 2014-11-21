@@ -22,53 +22,43 @@ import org.apache.spark.SparkContext
 import akka.actor.Props
 
 import de.kp.spark.piwik.model._
-import de.kp.spark.piwik.context.StatusContext
+import de.kp.spark.piwik.context.RemoteContext
 
-class StatusActor(@transient val sc:SparkContext) extends BaseActor {
-
-  implicit val ec = context.dispatcher
+class WorkerActor(@transient val sc:SparkContext,ctx:RemoteContext) extends BaseActor {
 
   def receive = {
     
     case req:ServiceRequest => {
       
       val origin = sender
-      if (isValid(req)) {
-      
-        /*
-         * We distinguish between status request that have to be delegated to
-         * Predictiworks. via the StatusContext and functionality that is intrinsic
-         * part of PIWIKinsight.
-         */
-        req.service match {
+      /*
+       * We distinguish between requests that have to be delegated to
+       * Predictiworks. via the RecomteContext and functionality that 
+       * is intrinsic part of Sparkpiwik.
+       */
+      req.service match {
           
-          case Services.RECOMMENDATION => {
-               
+        case Services.RECOMMENDATION => {
             val actor = context.actorOf(Props(new ALSActor(sc)))
-
-          }
-          case _ => {
-        
-            val service = req.service
-            val message = Serializer.serializeRequest(req)
-            
-            val response = StatusContext.send(service,message).mapTo[String]
-            response.onSuccess {
-              case result => origin ! Serializer.deserializeResponse(result)
-            }
-            response.onFailure {
-              case throwable => origin ! failure(req,throwable.getMessage())	 	      
-	        }
-            
-          }
-          
+            // TODO
         }
-      
-      } else {
-        
-        val message = Messages.REQUEST_IS_NOT_SUPPORTED
-        origin ! failure(req,message)
-        
+        case _ => {
+          /*
+           * All other requests are delegated to Predictiveworks.
+           */       
+          val service = req.service
+          val message = Serializer.serializeRequest(req)
+            
+          val response = ctx.send(service,message).mapTo[String]
+          response.onSuccess {
+            case result => origin ! Serializer.deserializeResponse(result)
+          }
+          response.onFailure {
+            case throwable => origin ! failure(req,throwable.getMessage())	 	      
+          }
+            
+        }
+          
       }
       
     }

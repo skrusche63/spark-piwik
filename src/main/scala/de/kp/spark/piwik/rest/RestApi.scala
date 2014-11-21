@@ -32,7 +32,6 @@ import spray.httpx.encoding.Gzip
 import spray.httpx.marshalling.Marshaller
 
 import spray.routing.{Directives,HttpService,RequestContext,Route}
-import spray.routing.directives.EncodingDirectives
 import spray.routing.directives.CachingDirectives
 
 import scala.concurrent.{ExecutionContext}
@@ -41,7 +40,7 @@ import scala.concurrent.duration.DurationInt
 
 import scala.util.parsing.json._
 
-import de.kp.spark.piwik.actor.{GetMaster,MetaMaster,StatusMaster,StreamMaster,TrainMaster}
+import de.kp.spark.piwik.actor.{StreamMaster,MasterActor}
 import de.kp.spark.piwik.Configuration
 
 import de.kp.spark.piwik.model._
@@ -59,17 +58,17 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
   /*
    * Actor-based support for get, meta, status, train tasks
    */
-  val finder = system.actorOf(Props(new GetMaster(sc)), name="GetMaster")
+  val finder = system.actorOf(Props(new MasterActor(sc,"GetMaster")), name="GetMaster")
 
-  val monitor = system.actorOf(Props(new StatusMaster(sc)), name="StatusMaster")
-  val registrar = system.actorOf(Props(new MetaMaster()), name="MetaMaster")
+  val monitor = system.actorOf(Props(new MasterActor(sc,"StatusMaster")), name="StatusMaster")
+  val registrar = system.actorOf(Props(new MasterActor(sc,"MetaMaster")), name="MetaMaster")
   
-  val trainer = system.actorOf(Props(new TrainMaster(sc)), name="TrainMaster")
+  val trainer = system.actorOf(Props(new MasterActor(sc,"TrainMaster")), name="TrainMaster")
   /*
    * The StreamMaster is responsible for collecting incoming events, e.g. pageviews
    * and delegating these events to a Kafka queue for real-time processing
    */
-  val streamer = system.actorOf(Props(new StreamMaster()), name="StreamMaster")
+  val streamer = system.actorOf(Props(new StreamMaster(sc)), name="StreamMaster")
  
   def start() {
     RestService.start(routes,system,host,port)
@@ -77,24 +76,13 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
 
   private def routes:Route = {
 
-    path("train" / Segment) {service => 
+    path("get" / Segment / Segment) {(service,subject) => 
 	  post {
 	    respondWithStatus(OK) {
-	      ctx => doTrain(ctx,service)
+	      ctx => doGet(ctx,service,subject)
 	    }
 	  }
     }  ~ 
-    path("get" / Segment / Segment) {(service,concept) => 
-	  post {
-	    respondWithStatus(OK) {
-	      ctx => doGet(ctx,service,concept)
-	    }
-	  }
-    }  ~ 
-    /*
-     * This request provides a metadata specification that has to be
-     * registered in a Redis instance by the 'meta' service
-     */
     path("register" / Segment / Segment) {(service,subject) => 
 	  post {
 	    respondWithStatus(OK) {
@@ -115,6 +103,13 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
 	      ctx => doStream(ctx,service)
 	    }
 	  }
+    }  ~ 
+    path("train" / Segment) {service => 
+	  post {
+	    respondWithStatus(OK) {
+	      ctx => doTrain(ctx,service)
+	    }
+	  }
     } 
   
   }
@@ -123,7 +118,7 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
    * or concept is supported; the REST API is responsible for delegating
    * the request to the respective master actors as fast as possible
    */
-  private def doGet[T](ctx:RequestContext,service:String,concept:String) = doRequest(ctx,service,"get:" + concept)
+  private def doGet[T](ctx:RequestContext,service:String,subject:String) = doRequest(ctx,service,"get:" + subject)
   
   private def doRegister[T](ctx:RequestContext,service:String,subject:String) = {
 
@@ -202,19 +197,6 @@ class RestApi(host:String,port:Int,system:ActorSystem,@transient val sc:SparkCon
     }
       
     body.asInstanceOf[Map[String,String]]
-    
-  }
-  /**
-   * This method returns the 'raw' body provided with a Http request;
-   * it is e.g. used to access the meta service to register metadata
-   * specifications
-   */
-  private def getBodyAsString(ctx:RequestContext):String = {
-   
-    val httpRequest = ctx.request
-    val httpEntity  = httpRequest.entity    
-
-    httpEntity.data.asString
     
   }
   
