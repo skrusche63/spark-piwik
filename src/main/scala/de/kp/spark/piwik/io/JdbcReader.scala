@@ -23,7 +23,7 @@ import java.sql.{Connection,DriverManager,ResultSet}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.{JdbcRDD,RDD}
 
-import de.kp.spark.arules.Configuration
+import de.kp.spark.piwik.Configuration
 import scala.collection.mutable.HashMap
 
 class JdbcReader(@transient sc:SparkContext,site:Int,query:String) {

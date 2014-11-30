@@ -21,8 +21,8 @@ package de.kp.spark.piwik.source
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-import de.kp.spark.arules.Configuration
-import de.kp.spark.arules.io.JdbcReader
+import de.kp.spark.piwik.Configuration
+import de.kp.spark.piwik.io.JdbcReader
 
 import scala.collection.mutable.ArrayBuffer
 

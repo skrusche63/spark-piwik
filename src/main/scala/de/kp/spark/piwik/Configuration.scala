@@ -19,7 +19,6 @@ package de.kp.spark.piwik
 */
 
 import com.typesafe.config.ConfigFactory
-
 import scala.collection.mutable.HashMap
 
 object Configuration {
@@ -76,6 +75,17 @@ object Configuration {
   
     val cfg = config.getConfig("recommendation")
     cfg.getString("base")   
+    
+  }
+ 
+  def redis():(String,String) = {
+  
+    val cfg = config.getConfig("redis")
+    
+    val host = cfg.getString("host")
+    val port = cfg.getString("port")
+    
+    (host,port)
     
   }
 
